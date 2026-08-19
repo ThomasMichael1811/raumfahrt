@@ -19,10 +19,14 @@
 - **Commits:** nach jedem abgeschlossenen Ticket (siehe Ticket-Regeln)
 - **Commit-Stil:** Conventional Commits — Präfixe: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
 
+## Qualität
+- **QS-Tooling & Schwellenwerte:** `docs/quality-setup.md` — `mvn verify` läuft mit Checkstyle, PMD, SpotBugs, JaCoCo (>80 % Coverage)
+
 ## Code-Stil
 - Keine Kommentare im Code
 - Eine Klasse pro Datei
 - Klassennamen PascalCase, Methoden/Variablen camelCase
+- **Coding Guidelines:** vollständige Regeln in `docs/coding-guidelines.md` — bindend für alle Umsetzung
 
 ## Projekt-Struktur
 ```
