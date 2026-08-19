@@ -30,7 +30,7 @@ public final class SpaceWindow extends JFrame {
         int height = screen.height;
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
-        MeteorField meteorField = new MeteorField(width, 6, new MeteorSpawner(new Random(), height));
+        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), height));
         spacePanel = new SpacePanel(
                 new SpaceRenderer(),
                 new StarFieldRenderer(),
