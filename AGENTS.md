@@ -1,5 +1,8 @@
 # Raumfahrt — Entwicklungskonventionen
 
+## Wichtig
+- **Immer an den kabai Skill denken** — alle Board-/Ticket-/Wissens-Arbeit läuft über die kabai-MCP-Tools, nie direkt an der Datenbank vorbei.
+
 ## Tech-Stack
 - **Sprache:** Java (JDK 17+)
 - **Build:** Gradle (oder Maven)
