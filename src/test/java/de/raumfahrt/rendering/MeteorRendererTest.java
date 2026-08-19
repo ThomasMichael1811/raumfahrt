@@ -15,7 +15,7 @@ class MeteorRendererTest {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         new SpaceRenderer().render(graphics, 100, 100);
-        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 5), new MeteorShape(5));
+        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 5, 0.0, 0.2), new MeteorShape(5));
         graphics.dispose();
 
         assertTrue(containsRockColor(image));
@@ -26,7 +26,7 @@ class MeteorRendererTest {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         new SpaceRenderer().render(graphics, 100, 100);
-        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 5), new MeteorShape(5));
+        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 5, 0.0, 0.2), new MeteorShape(5));
         graphics.dispose();
 
         assertTrue(rockAtPosition(image, 50, 50));

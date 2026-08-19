@@ -20,6 +20,19 @@ class MeteorSpawnerTest {
         assertTrue(meteor.y() >= 0 && meteor.y() < HEIGHT);
         assertTrue(meteor.size() >= 15 && meteor.size() <= 45);
         assertTrue(meteor.speedX() >= 60 && meteor.speedX() <= 120);
+        assertTrue(meteor.rotation() == 0.0);
+        assertTrue(meteor.rotationSpeed() >= 1.0 * 2.0 * Math.PI / 60.0
+                && meteor.rotationSpeed() <= 10.0 * 2.0 * Math.PI / 60.0);
+    }
+
+    @Test
+    void rotationsgeschwindigkeitVariiertZwischenMeteoren() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(13L), HEIGHT);
+
+        double first = spawner.createMeteor().rotationSpeed();
+        double second = spawner.createMeteor().rotationSpeed();
+
+        assertTrue(first != second);
     }
 
     @Test
