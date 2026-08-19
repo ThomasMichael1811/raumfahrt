@@ -1,13 +1,12 @@
 package de.raumfahrt.rendering;
 
-import de.raumfahrt.core.Star;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.raumfahrt.core.Star;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class StarFieldRendererTest {
 

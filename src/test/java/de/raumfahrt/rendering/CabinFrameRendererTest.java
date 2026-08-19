@@ -1,12 +1,11 @@
 package de.raumfahrt.rendering;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import org.junit.jupiter.api.Test;
 
 class CabinFrameRendererTest {
 

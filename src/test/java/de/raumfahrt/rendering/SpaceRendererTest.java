@@ -1,11 +1,10 @@
 package de.raumfahrt.rendering;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 class SpaceRendererTest {
 

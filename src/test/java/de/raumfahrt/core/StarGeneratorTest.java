@@ -1,12 +1,11 @@
 package de.raumfahrt.core;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class StarGeneratorTest {
 
@@ -35,12 +34,26 @@ class StarGeneratorTest {
     void naheSterneSindGroesserUndHellerAlsFerne() {
         List<Star> stars = new StarGenerator().generate(WIDTH, HEIGHT, new Random(1L));
 
-        double maxFarSize = stars.stream().filter(s -> s.depth() == 0).mapToDouble(Star::size).max().orElse(0);
-        double minNearSize = stars.stream().filter(s -> s.depth() == 2).mapToDouble(Star::size).min().orElse(0);
-        double maxFarBrightness = stars.stream().filter(s -> s.depth() == 0)
-            .mapToDouble(Star::brightness).max().orElse(0);
-        double minNearBrightness = stars.stream().filter(s -> s.depth() == 2)
-            .mapToDouble(Star::brightness).min().orElse(0);
+        double maxFarSize = stars.stream()
+                .filter(s -> s.depth() == 0)
+                .mapToDouble(Star::size)
+                .max()
+                .orElse(0);
+        double minNearSize = stars.stream()
+                .filter(s -> s.depth() == 2)
+                .mapToDouble(Star::size)
+                .min()
+                .orElse(0);
+        double maxFarBrightness = stars.stream()
+                .filter(s -> s.depth() == 0)
+                .mapToDouble(Star::brightness)
+                .max()
+                .orElse(0);
+        double minNearBrightness = stars.stream()
+                .filter(s -> s.depth() == 2)
+                .mapToDouble(Star::brightness)
+                .min()
+                .orElse(0);
 
         assertTrue(minNearSize > maxFarSize);
         assertTrue(minNearBrightness > maxFarBrightness);
@@ -54,7 +67,8 @@ class StarGeneratorTest {
             assertTrue(star.x() >= 0 && star.x() < WIDTH);
             assertTrue(star.y() >= 0 && star.y() < HEIGHT);
         }
-        long uniquePositions = stars.stream().map(s -> s.x() + "," + s.y()).distinct().count();
+        long uniquePositions =
+                stars.stream().map(s -> s.x() + "," + s.y()).distinct().count();
         assertEquals(stars.size(), uniquePositions);
     }
 }

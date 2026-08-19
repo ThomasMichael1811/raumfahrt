@@ -1,11 +1,10 @@
 package de.raumfahrt.core;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class StarFieldTest {
 
@@ -23,10 +22,12 @@ class StarFieldTest {
 
     @Test
     void naheSterneBewegenSichSchnellerAlsFerne() {
-        StarField field = new StarField(WIDTH, List.of(
-            new Star(300, 10, 1.0, 1.0, 0),
-            new Star(300, 20, 1.0, 1.0, 1),
-            new Star(300, 30, 1.0, 1.0, 2)));
+        StarField field = new StarField(
+                WIDTH,
+                List.of(
+                        new Star(300, 10, 1.0, 1.0, 0),
+                        new Star(300, 20, 1.0, 1.0, 1),
+                        new Star(300, 30, 1.0, 1.0, 2)));
 
         field.update(1.0);
 

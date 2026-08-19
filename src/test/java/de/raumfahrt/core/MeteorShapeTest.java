@@ -1,11 +1,10 @@
 package de.raumfahrt.core;
 
-import org.junit.jupiter.api.Test;
-
-import java.awt.Polygon;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.awt.Polygon;
+import org.junit.jupiter.api.Test;
 
 class MeteorShapeTest {
 

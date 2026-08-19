@@ -44,6 +44,10 @@ Kommentare, die Guideline ist das Dokument).
 - Eine Top-Level-Klasse pro Datei; Datei endet mit Zeilenumbruch.
 - UTF-8.
 
+Formatierung wird automatisch erzwungen: **palantir-java-format** über Spotless
+(`mvn spotless:apply` korrigiert, `spotless:check` im Build prüft). Detail-
+Mapping aller Regeln auf Werkzeuge: `docs/guideline-tool-mapping.md`.
+
 ## Paket- und Klassenstruktur
 
 - Eine Klasse pro Datei, eine Verantwortung pro Klasse (SRP).

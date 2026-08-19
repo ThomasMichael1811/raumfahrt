@@ -1,14 +1,13 @@
 package de.raumfahrt.core;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 
 class GameLoopTest {
 
@@ -40,8 +39,7 @@ class GameLoopTest {
 
     @Test
     void stopBeendetThreadOhneLeak() throws Exception {
-        GameLoop loop = new GameLoop(1_000, deltaSeconds -> {
-        });
+        GameLoop loop = new GameLoop(1_000, deltaSeconds -> {});
         loop.start();
         await(loop::isRunning);
 
@@ -53,7 +51,7 @@ class GameLoopTest {
 
     private boolean gameLoopThreadAlive() {
         return Thread.getAllStackTraces().keySet().stream()
-            .anyMatch(t -> t.getName().equals("game-loop") && t.isAlive());
+                .anyMatch(t -> t.getName().equals("game-loop") && t.isAlive());
     }
 
     private void await(java.util.function.BooleanSupplier condition) throws InterruptedException {

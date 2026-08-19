@@ -2,7 +2,6 @@ package de.raumfahrt.rendering;
 
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;

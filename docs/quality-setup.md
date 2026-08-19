@@ -41,6 +41,10 @@ Warnungen im Report.
 
 - **Checkstyle** (maven-checkstyle-plugin 3.4.0) — Stil & Struktur,
   Konfiguration `config/checkstyle.xml`, bricht Build bei Verstößen.
+- **Spotless** (spotless-maven-plugin 3.9.0) — Formatierung mit
+  palantir-java-format (4 Leerzeichen, 120 Zeichen), bricht Build bei
+  Abweichungen (`spotless:check`), korrigiert automatisch via `spotless:apply`.
+  Regel-Tool-Mapping: `docs/guideline-tool-mapping.md`.
 - **PMD** (pmd-maven-plugin 3.28.0, PMD 7) — Komplexität & Größe,
   Konfiguration `config/pmd.xml`, bricht Build bei Verstößen.
 - **SpotBugs** (spotbugs-maven-plugin 4.10.3.0) — Bug-Patterns, Effort Max,
@@ -63,6 +67,7 @@ manuell verifiziert. Die Messung gilt der Domain-/Simulationslogik.
 mvn verify                        # Build + Tests + alle QS-Tools + Coverage-Check
 mvn site                          # Qualitäts- & Test-Reports nach target/site
 mvn jacoco:report                 # Coverage-Report (target/site/jacoco)
+mvn spotless:apply                # formatierte alle Quelldateien automatisch
 ./scripts/release-notes.sh        # RELEASE_NOTES.md aus Conventional Commits
 ```
 

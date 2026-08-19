@@ -1,15 +1,14 @@
 package de.raumfahrt.rendering;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
-import org.junit.jupiter.api.Test;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class MeteorRendererTest {
 
@@ -18,8 +17,7 @@ class MeteorRendererTest {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         new SpaceRenderer().render(graphics, 100, 100);
-        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 0, 0.2),
-            new MeteorShape(5));
+        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, 0, 0.2), new MeteorShape(5));
         graphics.dispose();
 
         assertTrue(containsRockColor(image));
@@ -49,8 +47,7 @@ class MeteorRendererTest {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         new SpaceRenderer().render(graphics, 100, 100);
-        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, rotation, 0.2),
-            new MeteorShape(5));
+        new MeteorRenderer().render(graphics, new Meteor(50, 50, 15, 0, 0, rotation, 0.2), new MeteorShape(5));
         graphics.dispose();
         return image;
     }
@@ -66,4 +63,3 @@ class MeteorRendererTest {
         return false;
     }
 }
-

@@ -1,14 +1,12 @@
 package de.raumfahrt;
 
 import de.raumfahrt.app.SpaceWindow;
-
-import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
+import javax.swing.SwingUtilities;
 
 public final class RaumfahrtApp {
 
-    private RaumfahrtApp() {
-    }
+    private RaumfahrtApp() {}
 
     public static void main(String[] args) {
         launch();

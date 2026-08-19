@@ -9,11 +9,10 @@ import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
-
-import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import javax.swing.JPanel;
 
 public final class SpacePanel extends JPanel {
 
@@ -28,9 +27,13 @@ public final class SpacePanel extends JPanel {
     private final transient GameLoop gameLoop;
     private transient BufferedImage offscreen;
 
-    public SpacePanel(SpaceRenderer renderer, StarFieldRenderer starFieldRenderer,
-                      MeteorRenderer meteorRenderer, CabinFrameRenderer frameRenderer,
-                      StarField starField, MeteorField meteorField) {
+    public SpacePanel(
+            SpaceRenderer renderer,
+            StarFieldRenderer starFieldRenderer,
+            MeteorRenderer meteorRenderer,
+            CabinFrameRenderer frameRenderer,
+            StarField starField,
+            MeteorField meteorField) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
@@ -75,6 +78,3 @@ public final class SpacePanel extends JPanel {
         return (int) Math.round(meteor.size() * 100 + meteor.speedX() * 10);
     }
 }
-
-
-

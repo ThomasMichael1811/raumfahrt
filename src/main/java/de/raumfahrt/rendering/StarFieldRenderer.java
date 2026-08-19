@@ -1,7 +1,6 @@
 package de.raumfahrt.rendering;
 
 import de.raumfahrt.core.Star;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;

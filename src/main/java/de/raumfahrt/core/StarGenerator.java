@@ -19,11 +19,11 @@ public final class StarGenerator {
         for (int depth = 0; depth < LAYER_COUNT; depth++) {
             for (int i = 0; i < STARS_PER_LAYER[depth]; i++) {
                 stars.add(new Star(
-                    random.nextDouble() * width,
-                    random.nextDouble() * height,
-                    randomRange(random, SIZE_MIN[depth], SIZE_MAX[depth]),
-                    randomRange(random, BRIGHTNESS_MIN[depth], BRIGHTNESS_MAX[depth]),
-                    depth));
+                        random.nextDouble() * width,
+                        random.nextDouble() * height,
+                        randomRange(random, SIZE_MIN[depth], SIZE_MAX[depth]),
+                        randomRange(random, BRIGHTNESS_MIN[depth], BRIGHTNESS_MAX[depth]),
+                        depth));
             }
         }
         return stars;
