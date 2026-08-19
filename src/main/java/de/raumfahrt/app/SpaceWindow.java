@@ -1,5 +1,6 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 
 import javax.swing.AbstractAction;
@@ -14,7 +15,7 @@ public final class SpaceWindow extends JFrame {
     public SpaceWindow() {
         super("Raumfahrt");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setContentPane(new SpacePanel(new SpaceRenderer()));
+        setContentPane(new SpacePanel(new SpaceRenderer(), new CabinFrameRenderer()));
         setPreferredSize(new Dimension(1280, 720));
         pack();
         setLocationRelativeTo(null);
@@ -33,4 +34,5 @@ public final class SpaceWindow extends JFrame {
         });
     }
 }
+
 

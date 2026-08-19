@@ -1,5 +1,6 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 
 import javax.swing.JPanel;
@@ -10,10 +11,12 @@ import java.awt.image.BufferedImage;
 public final class SpacePanel extends JPanel {
 
     private final transient SpaceRenderer renderer;
+    private final transient CabinFrameRenderer frameRenderer;
     private transient BufferedImage offscreen;
 
-    public SpacePanel(SpaceRenderer renderer) {
+    public SpacePanel(SpaceRenderer renderer, CabinFrameRenderer frameRenderer) {
         this.renderer = renderer;
+        this.frameRenderer = frameRenderer;
     }
 
     @Override
@@ -26,7 +29,9 @@ public final class SpacePanel extends JPanel {
         }
         Graphics2D target = offscreen.createGraphics();
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
+        frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
     }
 }
+
