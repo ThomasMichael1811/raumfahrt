@@ -53,7 +53,6 @@ class MeteorFieldTest {
 
         assertTrue(moved.x() > initial.x());
         assertTrue(moved.size() > initial.size());
-        assertTrue(moved.rotation() >= initial.rotation());
     }
 
     @Test

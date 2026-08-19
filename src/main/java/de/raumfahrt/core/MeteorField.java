@@ -47,7 +47,6 @@ public final class MeteorField {
         double x = meteor.x() + meteor.speedX() * deltaSeconds;
         double y = meteor.y() + meteor.speedY() * deltaSeconds;
         double size = meteor.size() + SIZE_GROWTH_PER_SECOND * deltaSeconds;
-        double rotation = meteor.rotation() + meteor.rotationSpeed() * deltaSeconds;
-        return new Meteor(x, y, size, meteor.speedX(), meteor.speedY(), rotation, meteor.rotationSpeed());
+        return new Meteor(x, y, size, meteor.speedX(), meteor.speedY());
     }
 }
