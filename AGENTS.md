@@ -13,6 +13,7 @@
 2. **Backlog-Tickets werden in keinem Fall ohne direkten Auftrag des Menschen bearbeitet.**
 3. Nach **jedem** abgeschlossenen Ticket direkt in git committen.
 4. Zu **jedem** Ticket gehören, wenn möglich, Tests — damit ist sichergestellt, dass weiterhin alles funktioniert. Angestrebt wird eine **Testabdeckung > 80 %**.
+5. **Keine Tickets in `done` schieben — das macht immer der Mensch.** Tickets nach abgeschlossener Umsetzung nur bis `review` verschieben; der Mensch entscheidet über den Abschluss.
 
 ## Git
 - **Signing:** deaktiviert für dieses Repo (keine GPG-Signaturen)
