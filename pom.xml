@@ -85,6 +85,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/SpaceWindow*.class</exclude>
+                        <exclude>**/SpacePanel.class</exclude>
                         <exclude>**/RaumfahrtApp.class</exclude>
                     </excludes>
                 </configuration>
