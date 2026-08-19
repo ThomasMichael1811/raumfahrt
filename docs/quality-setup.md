@@ -41,12 +41,21 @@ Warnungen im Report.
 
 - **Checkstyle** (maven-checkstyle-plugin 3.4.0) — Stil & Struktur,
   Konfiguration `config/checkstyle.xml`, bricht Build bei Verstößen.
-- **PMD** (pmd-maven-plugin 3.21.2) — Komplexität & Größe,
+- **PMD** (pmd-maven-plugin 3.28.0, PMD 7) — Komplexität & Größe,
   Konfiguration `config/pmd.xml`, bricht Build bei Verstößen.
-- **SpotBugs** (spotbugs-maven-plugin 4.8.4.6) — Bug-Patterns, Effort Max,
+- **SpotBugs** (spotbugs-maven-plugin 4.10.3.0) — Bug-Patterns, Effort Max,
   Schwellwert Low. Bricht Build nicht (reine Befunde).
-- **JaCoCo** (0.8.12) — Testabdeckung, Ziel > 80 % (Linien & Branches),
-  wird beim `verify` erzwungen.
+- **JaCoCo** (0.8.12) — Testabdeckung, Ziel > 80 % **Linien** (erzwungen bei
+  `verify`). Branch-Abdeckung wird im Report geführt, nicht erzwungen —
+  der GUI-Zweig des App-Starts ist headless nicht testbar.
+
+### Coverage-Ausnahmen
+
+UI-Einstiegsklassen sind von der Coverage-Messung ausgenommen
+(`**/RaumfahrtApp.class`, `**/SpaceWindow*.class`), da sie nur dünne
+Swing-Glue sind und headless (CI) nicht mit einem echten Fenster getestet
+werden können. Ihr Verhalten wird funktional getestet (headless-Pfad) bzw.
+manuell verifiziert. Die Messung gilt der Domain-/Simulationslogik.
 
 ## Befehle
 

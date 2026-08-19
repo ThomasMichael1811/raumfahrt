@@ -1,11 +1,23 @@
 package de.raumfahrt;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RaumfahrtAppTest {
+
+    private final PrintStream originalOut = System.out;
+
+    @AfterEach
+    void restoreOutput() {
+        System.setOut(originalOut);
+    }
 
     @Test
     void startupMessageGibtStartmeldungZurueck() {
@@ -13,7 +25,13 @@ class RaumfahrtAppTest {
     }
 
     @Test
-    void mainStartetOhneExceptions() {
-        assertDoesNotThrow(() -> RaumfahrtApp.main(new String[0]));
+    void launchHeadlessGibtMeldungOhneFenster() {
+        System.setProperty("java.awt.headless", "true");
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(output));
+
+        assertDoesNotThrow(RaumfahrtApp::launch);
+
+        assertTrue(output.toString().contains("Raumfahrt gestartet."));
     }
 }
