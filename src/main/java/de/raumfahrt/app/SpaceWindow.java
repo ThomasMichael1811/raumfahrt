@@ -1,8 +1,10 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.rendering.CabinFrameRenderer;
+import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
 
@@ -23,7 +25,9 @@ public final class SpaceWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(1280, starGenerator.generate(1280, 720, new Random()));
-        spacePanel = new SpacePanel(new SpaceRenderer(), new StarFieldRenderer(), new CabinFrameRenderer(), starField);
+        Meteor meteor = new Meteor(900, 260, 40, 0, 0, 0, 0.3);
+        spacePanel = new SpacePanel(new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(),
+            new CabinFrameRenderer(), starField, meteor);
         setContentPane(spacePanel);
         setPreferredSize(new Dimension(1280, 720));
         pack();
@@ -50,6 +54,7 @@ public final class SpaceWindow extends JFrame {
         });
     }
 }
+
 
 
 
