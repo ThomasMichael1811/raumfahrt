@@ -3,4 +3,7 @@
     <Match>
         <Class name="de.raumfahrt.app.SpacePanel"/>
     </Match>
+    <Match>
+        <Class name="de.raumfahrt.app.SpaceWindow"/>
+    </Match>
 </FindBugsFilter>

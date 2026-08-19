@@ -1,5 +1,6 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
@@ -15,17 +16,27 @@ import java.util.Random;
 
 public final class SpaceWindow extends JFrame {
 
+    private final transient SpacePanel spacePanel;
+
     public SpaceWindow() {
         super("Raumfahrt");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         StarGenerator starGenerator = new StarGenerator();
-        setContentPane(new SpacePanel(new SpaceRenderer(), new StarFieldRenderer(), new CabinFrameRenderer(),
-            starGenerator.generate(1280, 720, new Random())));
+        StarField starField = new StarField(1280, starGenerator.generate(1280, 720, new Random()));
+        spacePanel = new SpacePanel(new SpaceRenderer(), new StarFieldRenderer(), new CabinFrameRenderer(), starField);
+        setContentPane(spacePanel);
         setPreferredSize(new Dimension(1280, 720));
         pack();
         setLocationRelativeTo(null);
         bindEscapeToClose();
         setVisible(true);
+        spacePanel.startGameLoop();
+    }
+
+    @Override
+    public void dispose() {
+        spacePanel.stopGameLoop();
+        super.dispose();
     }
 
     private void bindEscapeToClose() {
@@ -39,6 +50,7 @@ public final class SpaceWindow extends JFrame {
         });
     }
 }
+
 
 
 
