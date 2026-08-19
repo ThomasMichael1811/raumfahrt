@@ -8,7 +8,9 @@ import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
-import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.Random;
 import javax.swing.AbstractAction;
@@ -23,9 +25,12 @@ public final class SpaceWindow extends JFrame {
     public SpaceWindow() {
         super("Raumfahrt");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        Rectangle screen = screenBounds();
+        int width = screen.width;
+        int height = screen.height;
         StarGenerator starGenerator = new StarGenerator();
-        StarField starField = new StarField(1280, starGenerator.generate(1280, 720, new Random()));
-        MeteorField meteorField = new MeteorField(1280, 6, new MeteorSpawner(new Random(), 720));
+        StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
+        MeteorField meteorField = new MeteorField(width, 6, new MeteorSpawner(new Random(), height));
         spacePanel = new SpacePanel(
                 new SpaceRenderer(),
                 new StarFieldRenderer(),
@@ -34,9 +39,10 @@ public final class SpaceWindow extends JFrame {
                 starField,
                 meteorField);
         setContentPane(spacePanel);
-        setPreferredSize(new Dimension(1280, 720));
-        pack();
-        setLocationRelativeTo(null);
+        setUndecorated(true);
+        setSize(width, height);
+        setLocation(screen.x, screen.y);
+        setExtendedState(MAXIMIZED_BOTH);
         bindEscapeToClose();
         setVisible(true);
         spacePanel.startGameLoop();
@@ -46,6 +52,12 @@ public final class SpaceWindow extends JFrame {
     public void dispose() {
         spacePanel.stopGameLoop();
         super.dispose();
+    }
+
+    private Rectangle screenBounds() {
+        GraphicsDevice device =
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        return device.getDefaultConfiguration().getBounds();
     }
 
     private void bindEscapeToClose() {

@@ -10,8 +10,8 @@ public final class MeteorSpawner {
     private static final double SIZE_RANGE = 30.0;
     private static final double MIN_SPEED = 60.0;
     private static final double SPEED_RANGE = 60.0;
-    private static final double MIN_ROTATION_SPEED = 0.2;
-    private static final double ROTATION_SPEED_RANGE = 0.4;
+    private static final double MIN_ROTATION_SPEED = 0.05;
+    private static final double ROTATION_SPEED_RANGE = 0.10;
 
     private final Random random;
     private final int height;

@@ -20,7 +20,7 @@ class MeteorSpawnerTest {
         assertTrue(meteor.y() >= 0 && meteor.y() < HEIGHT);
         assertTrue(meteor.size() >= 15 && meteor.size() <= 45);
         assertTrue(meteor.speedX() >= 60 && meteor.speedX() <= 120);
-        assertTrue(meteor.rotationSpeed() >= 0.2 && meteor.rotationSpeed() <= 0.6);
+        assertTrue(meteor.rotationSpeed() >= 0.05 && meteor.rotationSpeed() <= 0.15);
     }
 
     @Test
