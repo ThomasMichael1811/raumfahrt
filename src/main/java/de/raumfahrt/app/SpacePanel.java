@@ -67,14 +67,10 @@ public final class SpacePanel extends JPanel {
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         starFieldRenderer.render(target, starField.stars(), offscreen.getWidth(), offscreen.getHeight());
         for (Meteor meteor : meteorField.meteors()) {
-            meteorRenderer.render(target, meteor, new MeteorShape(shapeSeed(meteor)));
+            meteorRenderer.render(target, meteor, new MeteorShape(meteor.shapeSeed()));
         }
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
-    }
-
-    private int shapeSeed(Meteor meteor) {
-        return (int) Math.round(meteor.size() * 100 + meteor.speedX() * 10);
     }
 }

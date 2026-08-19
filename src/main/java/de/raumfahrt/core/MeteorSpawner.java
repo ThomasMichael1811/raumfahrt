@@ -31,7 +31,7 @@ public final class MeteorSpawner {
         double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
         double speedX = MIN_SPEED + random.nextDouble() * SPEED_RANGE;
         double y = random.nextDouble() * height;
-        return new Meteor(-size * 2, y, size, speedX, 0);
+        return new Meteor(-size * 2, y, size, speedX, 0, random.nextInt());
     }
 
     public double nextSpawnInterval() {
