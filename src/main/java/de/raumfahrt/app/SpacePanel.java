@@ -1,7 +1,7 @@
 package de.raumfahrt.app;
 
 import de.raumfahrt.core.GameLoop;
-import de.raumfahrt.core.Meteor;
+import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.rendering.CabinFrameRenderer;
@@ -23,24 +23,24 @@ public final class SpacePanel extends JPanel {
     private final transient MeteorRenderer meteorRenderer;
     private final transient CabinFrameRenderer frameRenderer;
     private final transient StarField starField;
+    private final transient MeteorField meteorField;
     private final transient MeteorShape meteorShape;
-    private transient volatile Meteor meteor;
     private final transient GameLoop gameLoop;
     private transient BufferedImage offscreen;
 
     public SpacePanel(SpaceRenderer renderer, StarFieldRenderer starFieldRenderer,
                       MeteorRenderer meteorRenderer, CabinFrameRenderer frameRenderer,
-                      StarField starField, Meteor meteor) {
+                      StarField starField, MeteorField meteorField) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
         this.frameRenderer = frameRenderer;
         this.starField = starField;
-        this.meteor = meteor;
+        this.meteorField = meteorField;
         this.meteorShape = new MeteorShape(1337);
         this.gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
             starField.update(deltaSeconds);
-            this.meteor = this.meteor.rotated(deltaSeconds);
+            meteorField.update(deltaSeconds);
             repaint();
         });
     }
@@ -64,10 +64,13 @@ public final class SpacePanel extends JPanel {
         Graphics2D target = offscreen.createGraphics();
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         starFieldRenderer.render(target, starField.stars(), offscreen.getWidth(), offscreen.getHeight());
-        meteorRenderer.render(target, meteor, meteorShape);
+        if (meteorField.meteor() != null) {
+            meteorRenderer.render(target, meteorField.meteor(), meteorShape);
+        }
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
     }
 }
+
 
