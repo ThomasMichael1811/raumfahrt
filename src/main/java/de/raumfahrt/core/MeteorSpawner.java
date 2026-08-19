@@ -10,8 +10,7 @@ public final class MeteorSpawner {
     private static final double SIZE_RANGE = 30.0;
     private static final double MIN_SPEED = 60.0;
     private static final double SPEED_RANGE = 60.0;
-    private static final double MIN_ROTATION_SPEED = 0.05;
-    private static final double ROTATION_SPEED_RANGE = 0.10;
+    private static final double ROTATION_SPEED_RPM = 10.0;
 
     private final Random random;
     private final int height;
@@ -32,7 +31,7 @@ public final class MeteorSpawner {
     public Meteor createMeteor() {
         double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
         double speedX = MIN_SPEED + random.nextDouble() * SPEED_RANGE;
-        double rotationSpeed = MIN_ROTATION_SPEED + random.nextDouble() * ROTATION_SPEED_RANGE;
+        double rotationSpeed = ROTATION_SPEED_RPM * 2.0 * Math.PI / 60.0;
         double y = random.nextDouble() * height;
         return new Meteor(-size * 2, y, size, speedX, 0, 0, rotationSpeed);
     }
