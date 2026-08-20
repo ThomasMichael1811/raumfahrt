@@ -43,7 +43,11 @@ public final class MeteorRenderer {
             MeteorTrail.TrailPoint from = trail.points().get(i);
             MeteorTrail.TrailPoint to = trail.points().get(i + 1);
             float opacity = (float) trail.opacityAt(i);
-            graphics.setColor(new Color(TRAIL_COLOR.getRed(), TRAIL_COLOR.getGreen(), TRAIL_COLOR.getBlue(), opacity));
+            graphics.setColor(new Color(
+                    TRAIL_COLOR.getRed() / 255.0f,
+                    TRAIL_COLOR.getGreen() / 255.0f,
+                    TRAIL_COLOR.getBlue() / 255.0f,
+                    opacity));
             graphics.setStroke(new BasicStroke(Math.max(1.0f, size * 0.1f)));
             graphics.drawLine(
                     (int) projection.screenXCentered(from.x(), from.depth()),

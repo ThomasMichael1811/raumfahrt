@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorBehavior;
 import de.raumfahrt.core.MeteorShape;
+import de.raumfahrt.core.MeteorTrail;
 import de.raumfahrt.core.MonitorPairProjection;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -68,6 +69,45 @@ class MeteorRendererTest {
         farGraphics.dispose();
 
         assertTrue(countRockPixels(nearImage) > countRockPixels(farImage));
+    }
+
+    @Test
+    void renderTrailZeichnetOhneColorException() {
+        MeteorTrail trail = new MeteorTrail(1000.0);
+        trail.push(new MeteorTrail.TrailPoint(-20, 0, 600), 20.0);
+        trail.push(new MeteorTrail.TrailPoint(-10, 0, 550), 10.0);
+        trail.push(new MeteorTrail.TrailPoint(0, 0, 500), 10.0);
+
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new SpaceRenderer().render(graphics, W, H);
+        graphics.dispose();
+        int baseline = countTrailPixels(image);
+
+        Graphics2D trailGraphics = image.createGraphics();
+        new MeteorRenderer()
+                .renderTrail(
+                        trailGraphics,
+                        new MonitorPairProjection(W, H, 0, 400),
+                        meteorAt(0, 0, 500, 15),
+                        new MeteorShape(5),
+                        trail);
+        trailGraphics.dispose();
+
+        assertTrue(countTrailPixels(image) > baseline);
+    }
+
+    private int countTrailPixels(BufferedImage image) {
+        int count = 0;
+        int bg = image.getRGB(0, 0);
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (image.getRGB(x, y) != bg) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     private boolean rockAtPosition(BufferedImage image, int x, int y) {
