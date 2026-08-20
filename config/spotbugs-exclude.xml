@@ -6,4 +6,10 @@
     <Match>
         <Class name="de.raumfahrt.app.SpaceWindow"/>
     </Match>
+    <Match>
+        <Class name="de.raumfahrt.app.DemoPanel"/>
+    </Match>
+    <Match>
+        <Class name="de.raumfahrt.app.DemoWindow"/>
+    </Match>
 </FindBugsFilter>
