@@ -36,4 +36,13 @@ class SunTest {
         assertEquals(95, moved.x());
         assertTrue(moved.x() >= 0);
     }
+
+    @Test
+    void movedMitBreiteNullLaesstSonneUnveraendert() {
+        Sun sun = new Sun(10, 50, 30, 5.0);
+
+        Sun moved = sun.moved(2.0, 0);
+
+        assertEquals(sun, moved);
+    }
 }
