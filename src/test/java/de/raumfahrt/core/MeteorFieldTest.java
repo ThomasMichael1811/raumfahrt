@@ -48,7 +48,7 @@ class MeteorFieldTest {
         field.update(1.0);
         Meteor initial = field.meteors().get(0);
 
-        field.update(2.0);
+        field.update(0.5);
         Meteor moved = field.meteors().get(0);
 
         assertTrue(moved.x() != initial.x());
@@ -66,5 +66,30 @@ class MeteorFieldTest {
         field.update(100.0);
 
         assertTrue(field.meteors().isEmpty());
+    }
+
+    @Test
+    void beschleunigenderMeteorWirdSchnellerJeNaeherErKommt() {
+        Meteor initial = new Meteor(0, 0, 400, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ACCELERATING, 0, 0, 0);
+        MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(10L), WIDTH, HEIGHT, 1.0, 1.0));
+        double step = 2.0;
+
+        Meteor afterFirst = field.move(initial, step);
+        Meteor afterSecond = field.move(afterFirst, step);
+
+        double firstApproach = initial.depth() - afterFirst.depth();
+        double secondApproach = afterFirst.depth() - afterSecond.depth();
+
+        assertTrue(secondApproach > firstApproach);
+    }
+
+    @Test
+    void zigzagMeteorOszilliertLateral() {
+        Meteor initial = new Meteor(0, 0, 600, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ZIGZAG, 50.0, 2.0, 1.0);
+        MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(12L), WIDTH, HEIGHT, 1.0, 1.0));
+        Meteor moved = field.move(initial, 1.0);
+
+        assertTrue(moved.zigzagPhase() > initial.zigzagPhase());
+        assertTrue(moved.x() != initial.x());
     }
 }

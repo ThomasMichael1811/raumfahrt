@@ -10,4 +10,8 @@ public record Meteor(
         double speedZ,
         int shapeSeed,
         double rotation,
-        double rotationSpeed) {}
+        double rotationSpeed,
+        MeteorBehavior behavior,
+        double zigzagAmplitude,
+        double zigzagFrequency,
+        double zigzagPhase) {}

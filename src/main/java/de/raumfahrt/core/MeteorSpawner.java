@@ -10,14 +10,16 @@ public final class MeteorSpawner {
     private static final double SIZE_RANGE = 30.0;
     private static final double MIN_SPEED = 60.0;
     private static final double SPEED_RANGE = 60.0;
-    private static final double MIN_ROTATION_RPM = 1.0;
-    private static final double ROTATION_RPM_RANGE = 9.0;
     private static final double NEAR_DEPTH_BOUND = 200.0;
     private static final double FAR_DEPTH_MAX = 900.0;
     private static final double FAR_DEPTH_MIN = 500.0;
     private static final double NEAR_DEPTH_MIN = 200.0;
     private static final double FAR_PROBABILITY = 0.7;
     private static final double SPEED_Z = 120.0;
+    private static final double ZIGZAG_MIN_AMPLITUDE = 20.0;
+    private static final double ZIGZAG_AMPLITUDE_RANGE = 80.0;
+    private static final double ZIGZAG_MIN_FREQUENCY = 0.5;
+    private static final double ZIGZAG_FREQUENCY_RANGE = 2.0;
 
     private final Random random;
     private final int width;
@@ -41,11 +43,63 @@ public final class MeteorSpawner {
         double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
         double speed = MIN_SPEED + random.nextDouble() * SPEED_RANGE;
         double speedX = random.nextBoolean() ? speed : -speed;
-        double y = (random.nextDouble() - 0.5) * height;
-        double rotationSpeed = (MIN_ROTATION_RPM + random.nextDouble() * ROTATION_RPM_RANGE) * 2.0 * Math.PI / 60.0;
-        double x = (random.nextDouble() - 0.5) * width;
+        double x = randomX();
+        double y = randomY();
+        double rotationSpeed = rotationSpeed();
         double depth = randomDepth();
-        return new Meteor(x, y, depth, size, speedX, 0, -SPEED_Z, random.nextInt(), 0, rotationSpeed);
+        ZigzagOptions zigzag = randomZigzag();
+        return new Meteor(
+                x,
+                y,
+                depth,
+                size,
+                speedX,
+                0,
+                -SPEED_Z,
+                random.nextInt(),
+                0,
+                rotationSpeed,
+                zigzag.behavior(),
+                zigzag.amplitude(),
+                zigzag.frequency(),
+                0.0);
+    }
+
+    private double randomX() {
+        return (random.nextDouble() - 0.5) * width;
+    }
+
+    private double randomY() {
+        return (random.nextDouble() - 0.5) * height;
+    }
+
+    private ZigzagOptions randomZigzag() {
+        MeteorBehavior behavior = random.nextBoolean() ? MeteorBehavior.STRAIGHT : MeteorBehavior.ACCELERATING;
+        if (behavior == MeteorBehavior.STRAIGHT && random.nextBoolean()) {
+            double amplitude = ZIGZAG_MIN_AMPLITUDE + random.nextDouble() * ZIGZAG_AMPLITUDE_RANGE;
+            double frequency = ZIGZAG_MIN_FREQUENCY + random.nextDouble() * ZIGZAG_FREQUENCY_RANGE;
+            return new ZigzagOptions(MeteorBehavior.ZIGZAG, amplitude, frequency);
+        }
+        return new ZigzagOptions(behavior, 0.0, 0.0);
+    }
+
+    private record ZigzagOptions(MeteorBehavior behavior, double amplitude, double frequency) {}
+
+    private double rotationSpeed() {
+        double min;
+        double range;
+        double pick = random.nextDouble();
+        if (pick < 0.33) {
+            min = 1.0;
+            range = 3.0;
+        } else if (pick < 0.66) {
+            min = 4.0;
+            range = 3.0;
+        } else {
+            min = 7.0;
+            range = 3.0;
+        }
+        return (min + random.nextDouble() * range) * 2.0 * Math.PI / 60.0;
     }
 
     private double randomDepth() {

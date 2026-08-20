@@ -3,6 +3,7 @@ package de.raumfahrt.rendering;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.raumfahrt.core.Meteor;
+import de.raumfahrt.core.MeteorBehavior;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MonitorPairProjection;
 import java.awt.Graphics2D;
@@ -15,7 +16,7 @@ class MeteorRendererTest {
     private static final int H = 100;
 
     private static Meteor meteorAt(double worldX, double worldY, double depth, double size) {
-        return new Meteor(worldX, worldY, depth, size, 0, 0, -1, 5, 0.0, 0.2);
+        return new Meteor(worldX, worldY, depth, size, 0, 0, -1, 5, 0.0, 0.2, MeteorBehavior.STRAIGHT, 0, 0, 0);
     }
 
     @Test
