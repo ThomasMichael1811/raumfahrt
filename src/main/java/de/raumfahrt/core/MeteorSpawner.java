@@ -26,6 +26,7 @@ public final class MeteorSpawner {
     private final int height;
     private final double minInterval;
     private final double maxInterval;
+    private int nextId = 1;
 
     public MeteorSpawner(Random random, int width, int height) {
         this(random, width, height, DEFAULT_MIN_INTERVAL, DEFAULT_MAX_INTERVAL);
@@ -49,6 +50,7 @@ public final class MeteorSpawner {
         double depth = randomDepth();
         ZigzagOptions zigzag = randomZigzag();
         return new Meteor(
+                nextId++,
                 x,
                 y,
                 depth,

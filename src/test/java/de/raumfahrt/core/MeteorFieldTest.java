@@ -70,7 +70,7 @@ class MeteorFieldTest {
 
     @Test
     void beschleunigenderMeteorWirdSchnellerJeNaeherErKommt() {
-        Meteor initial = new Meteor(0, 0, 400, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ACCELERATING, 0, 0, 0);
+        Meteor initial = new Meteor(1, 0, 0, 400, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ACCELERATING, 0, 0, 0);
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(10L), WIDTH, HEIGHT, 1.0, 1.0));
         double step = 2.0;
 
@@ -85,11 +85,25 @@ class MeteorFieldTest {
 
     @Test
     void zigzagMeteorOszilliertLateral() {
-        Meteor initial = new Meteor(0, 0, 600, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ZIGZAG, 50.0, 2.0, 1.0);
+        Meteor initial = new Meteor(1, 0, 0, 600, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ZIGZAG, 50.0, 2.0, 1.0);
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(12L), WIDTH, HEIGHT, 1.0, 1.0));
         Meteor moved = field.move(initial, 1.0);
 
         assertTrue(moved.zigzagPhase() > initial.zigzagPhase());
         assertTrue(moved.x() != initial.x());
+    }
+
+    @Test
+    void trailWirdFuerZigzagUndAcceleratingGefuehrt() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(14L), WIDTH, HEIGHT, 0.0, 0.0);
+        MeteorField field = new MeteorField(WIDTH, 2, spawner);
+
+        field.update(0.1);
+
+        for (Meteor meteor : field.meteors()) {
+            if (meteor.behavior() != MeteorBehavior.STRAIGHT) {
+                assertTrue(field.trailFor(meteor.id()) != null);
+            }
+        }
     }
 }

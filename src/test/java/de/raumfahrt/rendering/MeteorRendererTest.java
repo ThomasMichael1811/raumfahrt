@@ -16,7 +16,7 @@ class MeteorRendererTest {
     private static final int H = 100;
 
     private static Meteor meteorAt(double worldX, double worldY, double depth, double size) {
-        return new Meteor(worldX, worldY, depth, size, 0, 0, -1, 5, 0.0, 0.2, MeteorBehavior.STRAIGHT, 0, 0, 0);
+        return new Meteor(1, worldX, worldY, depth, size, 0, 0, -1, 5, 0.0, 0.2, MeteorBehavior.STRAIGHT, 0, 0, 0);
     }
 
     @Test

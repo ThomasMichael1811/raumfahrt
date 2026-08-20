@@ -1,6 +1,7 @@
 package de.raumfahrt.core;
 
 public record Meteor(
+        int id,
         double x,
         double y,
         double depth,

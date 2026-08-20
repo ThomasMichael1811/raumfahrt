@@ -64,4 +64,8 @@ public final class SimulationWorld {
     public List<Meteor> meteors() {
         return meteorField.meteors();
     }
+
+    public MeteorTrail trailFor(int meteorId) {
+        return meteorField.trailFor(meteorId);
+    }
 }
