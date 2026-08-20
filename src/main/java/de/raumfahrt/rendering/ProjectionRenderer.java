@@ -14,22 +14,22 @@ public final class ProjectionRenderer {
     public BufferedImage render(MonitorPairProjection projection, List<ProjectedObject> objects) {
         int width = projection.monitorWidthPx();
         int height = projection.monitorHeightPx();
-        BufferedImage image = new BufferedImage(width * 2, height, BufferedImage.TYPE_INT_RGB);
+        int gap = (int) Math.round(projection.gapPx());
+        BufferedImage image = new BufferedImage(width * 2 + gap, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setColor(SPACE_BACKGROUND);
-        graphics.fillRect(0, 0, width * 2, height);
-        int gap = (int) Math.round(projection.gapPx());
+        graphics.fillRect(0, 0, width * 2 + gap, height);
         graphics.setColor(GAP_BACKGROUND);
-        graphics.fillRect(width - gap / 2, 0, gap, height);
+        graphics.fillRect(width, 0, gap, height);
         for (ProjectedObject object : objects) {
-            renderObject(graphics, projection, object, width);
+            renderObject(graphics, projection, object, width, gap);
         }
         graphics.dispose();
         return image;
     }
 
     private void renderObject(
-            Graphics2D graphics, MonitorPairProjection projection, ProjectedObject object, int width) {
+            Graphics2D graphics, MonitorPairProjection projection, ProjectedObject object, int width, int gap) {
         double leftX = projection.screenXLeft(object.worldX(), object.depth());
         double rightX = projection.screenXRight(object.worldX(), object.depth());
         double y = projection.screenY(object.worldY(), object.depth());
@@ -37,8 +37,8 @@ public final class ProjectionRenderer {
         if (leftX >= 0 && leftX < width) {
             fillDisc(graphics, leftX, y, object.radiusPx());
         }
-        if (rightX >= width && rightX < width * 2) {
-            fillDisc(graphics, rightX, y, object.radiusPx());
+        if (rightX >= width && rightX < width * 2 + gap) {
+            fillDisc(graphics, rightX + gap, y, object.radiusPx());
         }
     }
 

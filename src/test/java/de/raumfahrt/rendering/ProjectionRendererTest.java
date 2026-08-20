@@ -23,7 +23,7 @@ class ProjectionRendererTest {
         BufferedImage image = new ProjectionRenderer().render(projection, List.of(left, right));
 
         assertTrue(hasColor(image, Color.WHITE, 0, W));
-        assertTrue(hasColor(image, Color.WHITE, W, 2 * W));
+        assertTrue(hasColor(image, Color.WHITE, W + 20, 2 * W + 20));
     }
 
     @Test
@@ -33,9 +33,7 @@ class ProjectionRendererTest {
 
         BufferedImage image = new ProjectionRenderer().render(projection, List.of(center));
 
-        int gapLeft = W - 10;
-        int gapRight = W + 10;
-        for (int x = gapLeft; x < gapRight; x++) {
+        for (int x = W; x < W + 20; x++) {
             for (int y = 0; y < H; y++) {
                 assertEquals(ProjectionRenderer.GAP_BACKGROUND.getRGB(), image.getRGB(x, y));
             }
@@ -68,7 +66,7 @@ class ProjectionRendererTest {
         BufferedImage image = new ProjectionRenderer().render(projection, scene);
 
         assertTrue(hasNonBackground(image, 0, W));
-        assertTrue(hasNonBackground(image, W, 2 * W));
+        assertTrue(hasNonBackground(image, W + 20, 2 * W + 20));
     }
 
     private int leftmostX(BufferedImage image, Color color) {

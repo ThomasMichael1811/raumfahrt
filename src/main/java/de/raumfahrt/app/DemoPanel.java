@@ -110,7 +110,7 @@ public final class DemoPanel extends JPanel {
         target.drawString(String.format("Abweichung: %+.3f s", deviation), 16, line + 96);
         int gapPx = (int) Math.round(gapCm() * PX_PER_CM);
         target.setColor(Color.WHITE);
-        target.drawLine(width / 2 - gapPx / 2, 0, width / 2 - gapPx / 2, height);
-        target.drawLine(width / 2 + gapPx / 2, 0, width / 2 + gapPx / 2, height);
+        target.drawLine(width / 2, 0, width / 2, height);
+        target.drawLine(width / 2 + gapPx, 0, width / 2 + gapPx, height);
     }
 }

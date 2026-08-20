@@ -9,8 +9,9 @@ import javax.swing.event.ChangeEvent;
 
 public final class DemoWindow extends JFrame {
 
-    private static final int WINDOW_WIDTH = 1200;
+    private static final int VIEWPORT_WIDTH = 600;
     private static final int WINDOW_HEIGHT = 600;
+    private static final int MAX_GAP_PX = 500;
     private static final double DEFAULT_GAP_CM = 20.0;
 
     private final transient DemoPanel demoPanel;
@@ -18,7 +19,7 @@ public final class DemoWindow extends JFrame {
     public DemoWindow() {
         super("Demo: 2-Monitor-Simulation");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        demoPanel = new DemoPanel(WINDOW_WIDTH, WINDOW_HEIGHT, DEFAULT_GAP_CM);
+        demoPanel = new DemoPanel(VIEWPORT_WIDTH * 2 + MAX_GAP_PX, WINDOW_HEIGHT, DEFAULT_GAP_CM);
         setLayout(new BorderLayout());
         add(demoPanel, BorderLayout.CENTER);
         add(buildControls(), BorderLayout.SOUTH);

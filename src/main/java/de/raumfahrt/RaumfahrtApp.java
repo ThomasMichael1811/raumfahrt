@@ -3,6 +3,7 @@ package de.raumfahrt;
 import de.raumfahrt.app.DemoWindow;
 import de.raumfahrt.app.SpaceWindow;
 import java.awt.GraphicsEnvironment;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public final class RaumfahrtApp {
@@ -20,12 +21,26 @@ public final class RaumfahrtApp {
             return;
         }
         SwingUtilities.invokeLater(() -> {
-            if (demo) {
+            if (demo || chooseDemo()) {
                 new DemoWindow();
             } else {
                 new SpaceWindow();
             }
         });
+    }
+
+    private static boolean chooseDemo() {
+        Object[] options = {"Normale Sicht", "Demo-Modus"};
+        int choice = JOptionPane.showOptionDialog(
+                null,
+                "Bitte Modus wählen:",
+                "Raumfahrt",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+        return choice == 1;
     }
 
     static String startupMessage() {
