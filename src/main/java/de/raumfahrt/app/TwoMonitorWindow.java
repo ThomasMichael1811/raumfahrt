@@ -40,7 +40,7 @@ public final class TwoMonitorWindow {
         int height = primary.height;
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
-        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), height));
+        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
         windowOne = createWindow(devices[0], "Raumfahrt links");

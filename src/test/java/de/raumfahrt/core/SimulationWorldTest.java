@@ -13,7 +13,7 @@ class SimulationWorldTest {
 
     private static SimulationWorld createWorld() {
         StarField starField = new StarField(WIDTH, List.of(new Star(100, 50, 1.0, 1.0, 1)));
-        MeteorField meteorField = new MeteorField(WIDTH, 0, new MeteorSpawner(new java.util.Random(1), 100));
+        MeteorField meteorField = new MeteorField(WIDTH, 0, new MeteorSpawner(new java.util.Random(1), WIDTH, 100));
         Sun sun = new Sun(500, 50, 30, 5.0);
         return new SimulationWorld(WIDTH, starField, meteorField, sun);
     }

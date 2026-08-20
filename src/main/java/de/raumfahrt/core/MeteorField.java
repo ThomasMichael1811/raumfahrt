@@ -62,6 +62,6 @@ public final class MeteorField {
     }
 
     private boolean isVisible(Meteor meteor) {
-        return meteor.depth() > NEAR_PLANE && meteor.x() - meteor.size() <= width;
+        return meteor.depth() > NEAR_PLANE && Math.abs(meteor.x()) - meteor.size() <= width;
     }
 }
