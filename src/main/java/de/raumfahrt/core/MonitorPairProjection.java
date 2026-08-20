@@ -10,8 +10,16 @@ public record MonitorPairProjection(int monitorWidthPx, int monitorHeightPx, dou
         return focalPx * worldX / depth + monitorWidthPx - gapPx / 2.0;
     }
 
+    public double screenXCentered(double worldX, double depth) {
+        return focalPx * worldX / depth + monitorWidthPx / 2.0;
+    }
+
     public double screenY(double worldY, double depth) {
         return focalPx * worldY / depth + monitorHeightPx / 2.0;
+    }
+
+    public double scale(double worldSize, double depth) {
+        return focalPx * worldSize / depth;
     }
 
     public double leftExitWorldX(double depth) {

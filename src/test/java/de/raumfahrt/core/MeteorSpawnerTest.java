@@ -17,12 +17,14 @@ class MeteorSpawnerTest {
         Meteor meteor = spawner.createMeteor();
 
         assertTrue(meteor.x() < 0);
-        assertTrue(meteor.y() >= 0 && meteor.y() < HEIGHT);
+        assertTrue(meteor.y() >= -HEIGHT / 2.0 && meteor.y() < HEIGHT / 2.0);
         assertTrue(meteor.size() >= 15 && meteor.size() <= 45);
         assertTrue(meteor.speedX() >= 60 && meteor.speedX() <= 120);
         assertTrue(meteor.rotation() == 0.0);
         assertTrue(meteor.rotationSpeed() >= 1.0 * 2.0 * Math.PI / 60.0
                 && meteor.rotationSpeed() <= 10.0 * 2.0 * Math.PI / 60.0);
+        assertTrue(meteor.depth() >= 500 && meteor.depth() <= 900);
+        assertTrue(meteor.speedZ() < 0);
     }
 
     @Test

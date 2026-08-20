@@ -5,7 +5,7 @@ import java.util.List;
 
 public final class MeteorField {
 
-    private static final double SIZE_GROWTH_PER_SECOND = 4.0;
+    private static final double NEAR_PLANE = 80.0;
 
     private final int width;
     private final int maxMeteors;
@@ -35,7 +35,7 @@ public final class MeteorField {
         List<Meteor> survivors = new ArrayList<>();
         for (Meteor meteor : meteors) {
             Meteor moved = move(meteor, deltaSeconds);
-            if (moved.x() - moved.size() <= width) {
+            if (isVisible(moved)) {
                 survivors.add(moved);
             }
         }
@@ -46,9 +46,22 @@ public final class MeteorField {
     private Meteor move(Meteor meteor, double deltaSeconds) {
         double x = meteor.x() + meteor.speedX() * deltaSeconds;
         double y = meteor.y() + meteor.speedY() * deltaSeconds;
-        double size = meteor.size() + SIZE_GROWTH_PER_SECOND * deltaSeconds;
+        double depth = meteor.depth() + meteor.speedZ() * deltaSeconds;
         double rotation = meteor.rotation() + meteor.rotationSpeed() * deltaSeconds;
         return new Meteor(
-                x, y, size, meteor.speedX(), meteor.speedY(), meteor.shapeSeed(), rotation, meteor.rotationSpeed());
+                x,
+                y,
+                depth,
+                meteor.size(),
+                meteor.speedX(),
+                meteor.speedY(),
+                meteor.speedZ(),
+                meteor.shapeSeed(),
+                rotation,
+                meteor.rotationSpeed());
+    }
+
+    private boolean isVisible(Meteor meteor) {
+        return meteor.depth() > NEAR_PLANE && meteor.x() - meteor.size() <= width;
     }
 }

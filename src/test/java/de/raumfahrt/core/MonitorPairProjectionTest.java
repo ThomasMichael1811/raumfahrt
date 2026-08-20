@@ -60,4 +60,28 @@ class MonitorPairProjectionTest {
         assertEquals(H / 2.0, projection.screenY(0.0, 500.0));
         assertTrue(projection.screenY(10.0, 500.0) > projection.screenY(10.0, 1000.0));
     }
+
+    @Test
+    void screenXCenteredZentriertWeltursprung() {
+        MonitorPairProjection projection = new MonitorPairProjection(W, H, 0.0, 400.0);
+
+        assertEquals(W / 2.0, projection.screenXCentered(0.0, 500.0));
+    }
+
+    @Test
+    void screenXCenteredBewegtObjektMitTiefeUndSeite() {
+        MonitorPairProjection projection = new MonitorPairProjection(W, H, 0.0, 400.0);
+
+        assertTrue(projection.screenXCentered(10.0, 500.0) > W / 2.0);
+        assertTrue(projection.screenXCentered(-10.0, 500.0) < W / 2.0);
+        assertTrue(projection.screenXCentered(10.0, 500.0) > projection.screenXCentered(10.0, 1000.0));
+    }
+
+    @Test
+    void scaleWaechstMitNaehe() {
+        MonitorPairProjection projection = new MonitorPairProjection(W, H, 40.0, 400.0);
+
+        assertTrue(projection.scale(15.0, 200.0) > projection.scale(15.0, 800.0));
+        assertEquals(1.0, projection.scale(1.0, 400.0), 1e-9);
+    }
 }

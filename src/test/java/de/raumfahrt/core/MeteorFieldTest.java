@@ -42,7 +42,7 @@ class MeteorFieldTest {
     }
 
     @Test
-    void meteoriteBewegenSichUndWachsen() {
+    void meteoriteBewegenSichAufDieSichtZu() {
         MeteorSpawner spawner = new MeteorSpawner(new Random(6L), HEIGHT, 0.1, 0.1);
         MeteorField field = new MeteorField(WIDTH, 1, spawner);
         field.update(1.0);
@@ -52,21 +52,19 @@ class MeteorFieldTest {
         Meteor moved = field.meteors().get(0);
 
         assertTrue(moved.x() > initial.x());
-        assertTrue(moved.size() > initial.size());
+        assertTrue(moved.depth() < initial.depth());
+        assertEquals(initial.size(), moved.size());
         assertEquals(initial.shapeSeed(), moved.shapeSeed());
         assertTrue(moved.rotation() > initial.rotation());
     }
 
     @Test
-    void ausgelaufeneMeteoriteWerdenEntfernt() {
-        MeteorSpawner spawner = new MeteorSpawner(new Random(8L), HEIGHT, 1.0, 1.0);
+    void meteoriteEntferntWennFensterebeneErreicht() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(8L), HEIGHT, 0.0, 0.0);
         MeteorField field = new MeteorField(WIDTH, 1, spawner);
 
-        field.update(50.0);
+        field.update(100.0);
 
-        assertTrue(field.meteors().size() <= 1);
-        for (Meteor meteor : field.meteors()) {
-            assertTrue(meteor.x() - meteor.size() <= WIDTH);
-        }
+        assertTrue(field.meteors().isEmpty());
     }
 }

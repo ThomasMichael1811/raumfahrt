@@ -2,6 +2,7 @@ package de.raumfahrt.app;
 
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
+import de.raumfahrt.core.MonitorPairProjection;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
@@ -14,6 +15,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public final class SpacePanel extends JPanel {
+
+    private static final int FOCAL_PX = 400;
+    private static final double GAP_PX = 0.0;
 
     private final transient SpaceRenderer renderer;
     private final transient StarFieldRenderer starFieldRenderer;
@@ -49,12 +53,14 @@ public final class SpacePanel extends JPanel {
             offscreen = new BufferedImage(Math.max(width, 1), Math.max(height, 1), BufferedImage.TYPE_INT_RGB);
         }
         Graphics2D target = offscreen.createGraphics();
+        MonitorPairProjection projection =
+                new MonitorPairProjection(offscreen.getWidth(), offscreen.getHeight(), GAP_PX, FOCAL_PX);
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.translate(-world.cameraX(), 0);
         sunRenderer.render(target, world.sun());
         starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight());
         for (Meteor meteor : world.meteors()) {
-            meteorRenderer.render(target, meteor, new MeteorShape(meteor.shapeSeed()));
+            meteorRenderer.render(target, projection, meteor, new MeteorShape(meteor.shapeSeed()));
         }
         target.translate(world.cameraX(), 0);
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
