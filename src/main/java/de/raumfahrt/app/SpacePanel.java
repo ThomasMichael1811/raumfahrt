@@ -5,10 +5,12 @@ import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.StarField;
+import de.raumfahrt.core.Sun;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
+import de.raumfahrt.rendering.SunRenderer;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -22,8 +24,10 @@ public final class SpacePanel extends JPanel {
     private final transient StarFieldRenderer starFieldRenderer;
     private final transient MeteorRenderer meteorRenderer;
     private final transient CabinFrameRenderer frameRenderer;
+    private final transient SunRenderer sunRenderer = new SunRenderer();
     private final transient StarField starField;
     private final transient MeteorField meteorField;
+    private transient Sun sun;
     private final transient GameLoop gameLoop;
     private transient BufferedImage offscreen;
 
@@ -33,14 +37,17 @@ public final class SpacePanel extends JPanel {
             MeteorRenderer meteorRenderer,
             CabinFrameRenderer frameRenderer,
             StarField starField,
-            MeteorField meteorField) {
+            MeteorField meteorField,
+            Sun sun) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
         this.frameRenderer = frameRenderer;
         this.starField = starField;
         this.meteorField = meteorField;
+        this.sun = sun;
         this.gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
+            this.sun = sun.moved(deltaSeconds, getWidth());
             starField.update(deltaSeconds);
             meteorField.update(deltaSeconds);
             repaint();
@@ -65,6 +72,7 @@ public final class SpacePanel extends JPanel {
         }
         Graphics2D target = offscreen.createGraphics();
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
+        sunRenderer.render(target, sun);
         starFieldRenderer.render(target, starField.stars(), offscreen.getWidth(), offscreen.getHeight());
         for (Meteor meteor : meteorField.meteors()) {
             meteorRenderer.render(target, meteor, new MeteorShape(meteor.shapeSeed()));

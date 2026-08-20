@@ -4,6 +4,7 @@ import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
+import de.raumfahrt.core.Sun;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
@@ -31,13 +32,15 @@ public final class SpaceWindow extends JFrame {
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
         MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), height));
+        Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         spacePanel = new SpacePanel(
                 new SpaceRenderer(),
                 new StarFieldRenderer(),
                 new MeteorRenderer(),
                 new CabinFrameRenderer(),
                 starField,
-                meteorField);
+                meteorField,
+                sun);
         setContentPane(spacePanel);
         setUndecorated(true);
         setSize(width, height);
