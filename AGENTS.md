@@ -7,6 +7,7 @@
 
 ## Wichtig
 - **Immer an den kabai Skill denken** — alle Board-/Ticket-/Wissens-Arbeit läuft über die kabai-MCP-Tools, nie direkt an der Datenbank vorbei.
+- **Immer den caveman Skill starten** — zu Beginn jeder Session `skill: caveman` laden (ultra-kompakte Antworten).
 
 ## Tech-Stack
 - **Sprache:** Java (JDK 17+)
