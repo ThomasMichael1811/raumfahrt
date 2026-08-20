@@ -89,6 +89,7 @@
                         <exclude>**/DemoWindow*.class</exclude>
                         <exclude>**/DemoPanel.class</exclude>
                         <exclude>**/ConfigDialog*.class</exclude>
+                        <exclude>**/TwoMonitorWindow*.class</exclude>
                         <exclude>**/RaumfahrtApp.class</exclude>
                     </excludes>
                 </configuration>

@@ -1,7 +1,9 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
+import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
@@ -21,7 +23,10 @@ import javax.swing.KeyStroke;
 
 public final class SpaceWindow extends JFrame {
 
+    private static final int UPDATES_PER_SECOND = 60;
+
     private final transient SpacePanel spacePanel;
+    private final transient GameLoop gameLoop;
 
     public SpaceWindow() {
         super("Raumfahrt");
@@ -33,14 +38,9 @@ public final class SpaceWindow extends JFrame {
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
         MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), height));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
+        SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
         spacePanel = new SpacePanel(
-                new SpaceRenderer(),
-                new StarFieldRenderer(),
-                new MeteorRenderer(),
-                new CabinFrameRenderer(),
-                starField,
-                meteorField,
-                sun);
+                new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), world);
         setContentPane(spacePanel);
         setUndecorated(true);
         setSize(width, height);
@@ -48,12 +48,16 @@ public final class SpaceWindow extends JFrame {
         setExtendedState(MAXIMIZED_BOTH);
         bindEscapeToClose();
         setVisible(true);
-        spacePanel.startGameLoop();
+        gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
+            world.update(deltaSeconds);
+            spacePanel.repaint();
+        });
+        gameLoop.start();
     }
 
     @Override
     public void dispose() {
-        spacePanel.stopGameLoop();
+        gameLoop.stop();
         super.dispose();
     }
 

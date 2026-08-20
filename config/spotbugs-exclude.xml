@@ -15,4 +15,7 @@
     <Match>
         <Class name="de.raumfahrt.app.ConfigDialog"/>
     </Match>
+    <Match>
+        <Class name="de.raumfahrt.app.TwoMonitorWindow"/>
+    </Match>
 </FindBugsFilter>

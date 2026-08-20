@@ -2,36 +2,56 @@ package de.raumfahrt;
 
 import de.raumfahrt.app.DemoWindow;
 import de.raumfahrt.app.SpaceWindow;
+import de.raumfahrt.app.TwoMonitorWindow;
 import java.awt.GraphicsEnvironment;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public final class RaumfahrtApp {
 
+    static final int MODE_NORMAL = 0;
+    static final int MODE_DEMO = 1;
+    static final int MODE_TWO_MONITORS = 2;
+
     private RaumfahrtApp() {}
 
     public static void main(String[] args) {
-        boolean demo = args.length > 0 && "demo".equals(args[0]);
-        launch(demo);
+        String mode = args.length > 0 ? args[0] : "";
+        if ("demo".equals(mode)) {
+            launch(MODE_DEMO);
+        } else if ("2monitor".equals(mode)) {
+            launch(MODE_TWO_MONITORS);
+        } else {
+            launch(MODE_NORMAL);
+        }
     }
 
-    static void launch(boolean demo) {
+    static void launch(int mode) {
         if (GraphicsEnvironment.isHeadless()) {
             System.out.println(startupMessage());
             return;
         }
         SwingUtilities.invokeLater(() -> {
-            if (demo || chooseDemo()) {
-                new DemoWindow();
+            if (mode == MODE_NORMAL) {
+                int choice = chooseMode();
+                if (choice == MODE_TWO_MONITORS) {
+                    new TwoMonitorWindow();
+                } else if (choice == MODE_DEMO) {
+                    new DemoWindow();
+                } else {
+                    new SpaceWindow();
+                }
+            } else if (mode == MODE_TWO_MONITORS) {
+                new TwoMonitorWindow();
             } else {
-                new SpaceWindow();
+                new DemoWindow();
             }
         });
     }
 
-    private static boolean chooseDemo() {
-        Object[] options = {"Normale Sicht", "Demo-Modus"};
-        int choice = JOptionPane.showOptionDialog(
+    private static int chooseMode() {
+        Object[] options = {"Normale Sicht", "Demo-Modus", "2-Monitor-Modus"};
+        return JOptionPane.showOptionDialog(
                 null,
                 "Bitte Modus wählen:",
                 "Raumfahrt",
@@ -40,7 +60,6 @@ public final class RaumfahrtApp {
                 null,
                 options,
                 options[0]);
-        return choice == 1;
     }
 
     static String startupMessage() {

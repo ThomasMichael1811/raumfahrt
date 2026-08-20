@@ -29,8 +29,9 @@ class RaumfahrtAppTest {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         System.setOut(new PrintStream(output));
 
-        assertDoesNotThrow(() -> RaumfahrtApp.launch(false));
-        assertDoesNotThrow(() -> RaumfahrtApp.launch(true));
+        assertDoesNotThrow(() -> RaumfahrtApp.launch(RaumfahrtApp.MODE_NORMAL));
+        assertDoesNotThrow(() -> RaumfahrtApp.launch(RaumfahrtApp.MODE_DEMO));
+        assertDoesNotThrow(() -> RaumfahrtApp.launch(RaumfahrtApp.MODE_TWO_MONITORS));
 
         assertTrue(output.toString().contains("Raumfahrt gestartet."));
     }

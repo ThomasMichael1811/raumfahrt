@@ -1,11 +1,8 @@
 package de.raumfahrt.app;
 
-import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.Meteor;
-import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorShape;
-import de.raumfahrt.core.StarField;
-import de.raumfahrt.core.Sun;
+import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
@@ -18,17 +15,12 @@ import javax.swing.JPanel;
 
 public final class SpacePanel extends JPanel {
 
-    private static final int UPDATES_PER_SECOND = 60;
-
     private final transient SpaceRenderer renderer;
     private final transient StarFieldRenderer starFieldRenderer;
     private final transient MeteorRenderer meteorRenderer;
     private final transient CabinFrameRenderer frameRenderer;
     private final transient SunRenderer sunRenderer = new SunRenderer();
-    private final transient StarField starField;
-    private final transient MeteorField meteorField;
-    private transient Sun sun;
-    private final transient GameLoop gameLoop;
+    private final transient SimulationWorld world;
     private transient BufferedImage offscreen;
 
     public SpacePanel(
@@ -36,30 +28,16 @@ public final class SpacePanel extends JPanel {
             StarFieldRenderer starFieldRenderer,
             MeteorRenderer meteorRenderer,
             CabinFrameRenderer frameRenderer,
-            StarField starField,
-            MeteorField meteorField,
-            Sun sun) {
+            SimulationWorld world) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
         this.frameRenderer = frameRenderer;
-        this.starField = starField;
-        this.meteorField = meteorField;
-        this.sun = sun;
-        this.gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
-            this.sun = sun.moved(deltaSeconds, getWidth());
-            starField.update(deltaSeconds);
-            meteorField.update(deltaSeconds);
-            repaint();
-        });
+        this.world = world;
     }
 
-    public void startGameLoop() {
-        gameLoop.start();
-    }
-
-    public void stopGameLoop() {
-        gameLoop.stop();
+    public SimulationWorld world() {
+        return world;
     }
 
     @Override
@@ -72,11 +50,13 @@ public final class SpacePanel extends JPanel {
         }
         Graphics2D target = offscreen.createGraphics();
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
-        sunRenderer.render(target, sun);
-        starFieldRenderer.render(target, starField.stars(), offscreen.getWidth(), offscreen.getHeight());
-        for (Meteor meteor : meteorField.meteors()) {
+        target.translate(-world.cameraX(), 0);
+        sunRenderer.render(target, world.sun());
+        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight());
+        for (Meteor meteor : world.meteors()) {
             meteorRenderer.render(target, meteor, new MeteorShape(meteor.shapeSeed()));
         }
+        target.translate(world.cameraX(), 0);
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
