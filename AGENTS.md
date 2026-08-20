@@ -1,5 +1,10 @@
 # Raumfahrt — Entwicklungskonventionen
 
+## Kabai-Projekt
+- Dieses Repo gehört zum **kabai-Projekt "Raumfahrt" (Projekt-ID 28)**.
+- Alle Board-/Ticket-/Wissens-Arbeit läuft über die kabai-MCP-Tools (Projekt 28), nie direkt an der Datenbank vorbei.
+- Aktueller Schwerpunkt: Epic #447 "2-Monitor-Sicht mit physikalisch korrekter Monitorlücke" (Kinder #448–#451).
+
 ## Wichtig
 - **Immer an den kabai Skill denken** — alle Board-/Ticket-/Wissens-Arbeit läuft über die kabai-MCP-Tools, nie direkt an der Datenbank vorbei.
 
