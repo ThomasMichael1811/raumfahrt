@@ -1,5 +1,7 @@
 package de.raumfahrt.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public final class MeteorSpawner {
@@ -73,6 +75,20 @@ public final class MeteorSpawner {
 
     private double randomY() {
         return (random.nextDouble() - 0.5) * height;
+    }
+
+    public List<ExplosionFragment> createExplosionFragments(double x, double y, double depth) {
+        int count = 8 + random.nextInt(5);
+        List<ExplosionFragment> fragments = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            double speed = 60.0 + random.nextDouble() * 120.0;
+            double angle = random.nextDouble() * 2.0 * Math.PI;
+            double size = 3.0 + random.nextDouble() * 5.0;
+            double rotationSpeed = (1.0 + random.nextDouble() * 4.0) * 2.0 * Math.PI / 60.0;
+            fragments.add(new ExplosionFragment(
+                    x, y, depth, size, Math.cos(angle) * speed, Math.sin(angle) * speed, 0.0, rotationSpeed));
+        }
+        return List.copyOf(fragments);
     }
 
     private ZigzagOptions randomZigzag() {

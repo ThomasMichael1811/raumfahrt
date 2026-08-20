@@ -8,7 +8,6 @@ import java.util.Map;
 public final class MeteorField {
 
     private static final double NEAR_PLANE = 80.0;
-    private static final double ACCELERATION_BASE_DEPTH = 500.0;
     private static final double TRAIL_LENGTH_FACTOR = 2.0;
 
     private final int width;
@@ -16,6 +15,8 @@ public final class MeteorField {
     private final MeteorSpawner spawner;
     private final List<Meteor> meteors = new ArrayList<>();
     private final Map<Integer, MeteorTrail> trails = new HashMap<>();
+    private final ExplosionHandler explosionHandler = new ExplosionHandler();
+    private final MeteorMovement movement = new MeteorMovement();
     private double spawnTimer;
     private double nextSpawnInterval;
 
@@ -30,11 +31,23 @@ public final class MeteorField {
         return List.copyOf(meteors);
     }
 
+    public List<Explosion> explosions() {
+        return explosionHandler.explosions();
+    }
+
     public MeteorTrail trailFor(int meteorId) {
         return trails.get(meteorId);
     }
 
     public void update(double deltaSeconds) {
+        spawnMeteors(deltaSeconds);
+        List<Meteor> survivors = moveMeteors(deltaSeconds);
+        meteors.clear();
+        meteors.addAll(survivors);
+        explosionHandler.update(deltaSeconds);
+    }
+
+    private void spawnMeteors(double deltaSeconds) {
         spawnTimer += deltaSeconds;
         while (spawnTimer >= nextSpawnInterval && meteors.size() < maxMeteors) {
             spawnTimer -= nextSpawnInterval;
@@ -45,9 +58,17 @@ public final class MeteorField {
                 trails.put(meteor.id(), new MeteorTrail(TRAIL_LENGTH_FACTOR * width));
             }
         }
+    }
+
+    private List<Meteor> moveMeteors(double deltaSeconds) {
         List<Meteor> survivors = new ArrayList<>();
         for (Meteor meteor : meteors) {
-            Meteor moved = move(meteor, deltaSeconds);
+            Meteor moved = movement.move(meteor, deltaSeconds);
+            if (moved.depth() <= NEAR_PLANE) {
+                explosionHandler.spawn(moved.x(), moved.y(), moved.depth(), spawner);
+                trails.remove(moved.id());
+                continue;
+            }
             if (isVisible(moved)) {
                 survivors.add(moved);
                 MeteorTrail trail = trails.get(moved.id());
@@ -59,8 +80,7 @@ public final class MeteorField {
                 trails.remove(moved.id());
             }
         }
-        meteors.clear();
-        meteors.addAll(survivors);
+        return survivors;
     }
 
     private boolean hasTrail(Meteor meteor) {
@@ -73,45 +93,6 @@ public final class MeteorField {
         double dz = to.depth() - from.depth();
         return Math.hypot(dx, Math.hypot(dy, dz));
     }
-
-    Meteor move(Meteor meteor, double deltaSeconds) {
-        BehaviorStep step = behaviorStep(meteor, deltaSeconds);
-        return new Meteor(
-                meteor.id(),
-                meteor.x() + step.deltaX(),
-                meteor.y() + step.deltaY(),
-                meteor.depth() + step.deltaZ(),
-                meteor.size(),
-                meteor.speedX(),
-                meteor.speedY(),
-                meteor.speedZ(),
-                meteor.shapeSeed(),
-                meteor.rotation() + meteor.rotationSpeed() * deltaSeconds,
-                meteor.rotationSpeed(),
-                meteor.behavior(),
-                meteor.zigzagAmplitude(),
-                meteor.zigzagFrequency(),
-                step.phase());
-    }
-
-    private BehaviorStep behaviorStep(Meteor meteor, double deltaSeconds) {
-        double deltaX = meteor.speedX() * deltaSeconds;
-        double deltaY = meteor.speedY() * deltaSeconds;
-        double deltaZ = meteor.speedZ() * deltaSeconds;
-        double phase = meteor.zigzagPhase();
-        if (meteor.behavior() == MeteorBehavior.ACCELERATING) {
-            double factor = Math.max(1.0, ACCELERATION_BASE_DEPTH / meteor.depth());
-            deltaX *= factor;
-            deltaY *= factor;
-            deltaZ *= factor;
-        } else if (meteor.behavior() == MeteorBehavior.ZIGZAG) {
-            deltaX += Math.sin(phase) * meteor.zigzagAmplitude() * deltaSeconds;
-            phase += meteor.zigzagFrequency() * deltaSeconds;
-        }
-        return new BehaviorStep(deltaX, deltaY, deltaZ, phase);
-    }
-
-    private record BehaviorStep(double deltaX, double deltaY, double deltaZ, double phase) {}
 
     private boolean isVisible(Meteor meteor) {
         return meteor.depth() > NEAR_PLANE && Math.abs(meteor.x()) - meteor.size() <= width;

@@ -80,4 +80,18 @@ class MeteorSpawnerTest {
 
         assertTrue(farCount > total / 2);
     }
+
+    @Test
+    void explosionsfragmenteFliegenVonDerPositionWeg() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(15L), WIDTH, HEIGHT);
+
+        java.util.List<ExplosionFragment> fragments = spawner.createExplosionFragments(0, 0, 100);
+
+        assertTrue(fragments.size() >= 8);
+        for (ExplosionFragment fragment : fragments) {
+            assertTrue(fragment.x() == 0.0 && fragment.y() == 0.0);
+            assertTrue(fragment.speedX() != 0.0 || fragment.speedY() != 0.0);
+            assertTrue(fragment.size() >= 3 && fragment.size() <= 8);
+        }
+    }
 }

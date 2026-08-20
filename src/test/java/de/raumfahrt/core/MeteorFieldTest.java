@@ -11,6 +11,8 @@ class MeteorFieldTest {
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 720;
 
+    private static final MeteorMovement MOVEMENT = new MeteorMovement();
+
     @Test
     void updateSpawnedMeteoriteMitKonfigurierbarerRate() {
         MeteorSpawner spawner = new MeteorSpawner(new Random(1L), WIDTH, HEIGHT, 0.5, 0.5);
@@ -45,10 +47,10 @@ class MeteorFieldTest {
     void meteoriteBewegenSichAufDieSichtZu() {
         MeteorSpawner spawner = new MeteorSpawner(new Random(6L), WIDTH, HEIGHT, 0.1, 0.1);
         MeteorField field = new MeteorField(WIDTH, 1, spawner);
-        field.update(1.0);
+        field.update(0.2);
         Meteor initial = field.meteors().get(0);
 
-        field.update(0.5);
+        field.update(0.2);
         Meteor moved = field.meteors().get(0);
 
         assertTrue(moved.x() != initial.x());
@@ -74,8 +76,8 @@ class MeteorFieldTest {
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(10L), WIDTH, HEIGHT, 1.0, 1.0));
         double step = 2.0;
 
-        Meteor afterFirst = field.move(initial, step);
-        Meteor afterSecond = field.move(afterFirst, step);
+        Meteor afterFirst = MOVEMENT.move(initial, step);
+        Meteor afterSecond = MOVEMENT.move(afterFirst, step);
 
         double firstApproach = initial.depth() - afterFirst.depth();
         double secondApproach = afterFirst.depth() - afterSecond.depth();
@@ -87,7 +89,7 @@ class MeteorFieldTest {
     void zigzagMeteorOszilliertLateral() {
         Meteor initial = new Meteor(1, 0, 0, 600, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ZIGZAG, 50.0, 2.0, 1.0);
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(12L), WIDTH, HEIGHT, 1.0, 1.0));
-        Meteor moved = field.move(initial, 1.0);
+        Meteor moved = MOVEMENT.move(initial, 1.0);
 
         assertTrue(moved.zigzagPhase() > initial.zigzagPhase());
         assertTrue(moved.x() != initial.x());
@@ -105,5 +107,31 @@ class MeteorFieldTest {
                 assertTrue(field.trailFor(meteor.id()) != null);
             }
         }
+    }
+
+    @Test
+    void meteorErzeugtExplosionBeimErreichenDerFensterebene() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(16L), WIDTH, HEIGHT, 0.0, 0.0);
+        MeteorField field = new MeteorField(WIDTH, 1, spawner);
+
+        field.update(10.0);
+
+        assertTrue(field.meteors().isEmpty());
+        assertTrue(field.explosions().size() >= 1);
+        for (Explosion explosion : field.explosions()) {
+            assertTrue(explosion.fragments().size() >= 8);
+        }
+    }
+
+    @Test
+    void explosionVerschwindetNachLebensdauer() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(18L), WIDTH, HEIGHT, 0.0, 0.0);
+        MeteorField field = new MeteorField(WIDTH, 1, spawner);
+        field.update(10.0);
+        assertTrue(field.explosions().size() >= 1);
+
+        field.update(2.0);
+
+        assertTrue(field.explosions().isEmpty());
     }
 }

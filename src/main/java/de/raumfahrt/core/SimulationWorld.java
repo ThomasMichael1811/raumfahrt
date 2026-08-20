@@ -68,4 +68,8 @@ public final class SimulationWorld {
     public MeteorTrail trailFor(int meteorId) {
         return meteorField.trailFor(meteorId);
     }
+
+    public List<Explosion> explosions() {
+        return meteorField.explosions();
+    }
 }

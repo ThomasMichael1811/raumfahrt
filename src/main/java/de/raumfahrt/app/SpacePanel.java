@@ -1,10 +1,12 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.core.Explosion;
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MonitorPairProjection;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.rendering.CabinFrameRenderer;
+import de.raumfahrt.rendering.ExplosionRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
@@ -23,6 +25,7 @@ public final class SpacePanel extends JPanel {
     private final transient StarFieldRenderer starFieldRenderer;
     private final transient MeteorRenderer meteorRenderer;
     private final transient CabinFrameRenderer frameRenderer;
+    private final transient ExplosionRenderer explosionRenderer = new ExplosionRenderer();
     private final transient SunRenderer sunRenderer = new SunRenderer();
     private final transient SimulationWorld world;
     private transient BufferedImage offscreen;
@@ -63,6 +66,9 @@ public final class SpacePanel extends JPanel {
             MeteorShape shape = new MeteorShape(meteor.shapeSeed());
             meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()));
             meteorRenderer.render(target, projection, meteor, shape);
+        }
+        for (Explosion explosion : world.explosions()) {
+            explosionRenderer.render(target, projection, explosion);
         }
         target.translate(world.cameraX(), 0);
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
