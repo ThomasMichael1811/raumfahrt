@@ -22,6 +22,7 @@ public final class DemoPanel extends JPanel {
     private static final double FOCAL_PX = 400.0;
     private static final double BALL_RADIUS_PX = 12.0;
     private static final double START_SPEED = 50.0;
+    private static final double MAX_GAP_CM = 50.0;
     private static final Color BALL_COLOR = new Color(0xFF, 0x6A, 0x00);
 
     private final int viewportWidth;
@@ -30,11 +31,12 @@ public final class DemoPanel extends JPanel {
     private final transient GameLoop gameLoop;
     private transient DemoSimulation simulation;
     private transient BufferedImage offscreen;
+    private boolean rulerVisible;
 
-    public DemoPanel(int width, int height, double gapCm) {
-        setPreferredSize(new Dimension(width, height));
-        this.viewportWidth = width / 2;
-        this.viewportHeight = height;
+    public DemoPanel(int viewportWidth, int viewportHeight, double gapCm) {
+        this.viewportWidth = viewportWidth;
+        this.viewportHeight = viewportHeight;
+        setPreferredSize(new Dimension(viewportWidth * 2 + (int) Math.round(MAX_GAP_CM * PX_PER_CM), viewportHeight));
         this.renderer = new ProjectionRenderer();
         this.simulation = createSimulation(gapCm);
         this.gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
@@ -61,6 +63,11 @@ public final class DemoPanel extends JPanel {
         simulation = createSimulation(gapCm);
     }
 
+    public void setRulerVisible(boolean rulerVisible) {
+        this.rulerVisible = rulerVisible;
+        repaint();
+    }
+
     public void setSpeed(double speed) {
         simulation.setSpeed(speed);
     }
@@ -82,14 +89,16 @@ public final class DemoPanel extends JPanel {
             offscreen = new BufferedImage(Math.max(width, 1), Math.max(height, 1), BufferedImage.TYPE_INT_RGB);
         }
         Graphics2D target = offscreen.createGraphics();
-        target.drawImage(
-                renderer.render(
-                        new MonitorPairProjection(viewportWidth, viewportHeight, gapCm() * PX_PER_CM, FOCAL_PX),
-                        List.of(new ProjectedObject(simulation.worldX(), 0.0, DEPTH, BALL_RADIUS_PX, BALL_COLOR))),
-                0,
-                0,
-                null);
-        drawHud(target, width, height);
+        BufferedImage frame = renderer.render(
+                new MonitorPairProjection(viewportWidth, viewportHeight, gapCm() * PX_PER_CM, FOCAL_PX),
+                List.of(new ProjectedObject(simulation.worldX(), 0.0, DEPTH, BALL_RADIUS_PX, BALL_COLOR)));
+        target.drawImage(frame, 0, 0, null);
+        target.setColor(ProjectionRenderer.SPACE_BACKGROUND);
+        target.fillRect(frame.getWidth(), 0, width - frame.getWidth(), height);
+        drawHud(target, height);
+        if (rulerVisible) {
+            drawRuler(target, height);
+        }
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
     }
@@ -98,7 +107,7 @@ public final class DemoPanel extends JPanel {
         return simulation.projection().gapPx() / PX_PER_CM;
     }
 
-    private void drawHud(Graphics2D target, int width, int height) {
+    private void drawHud(Graphics2D target, int height) {
         target.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
         target.setColor(Color.WHITE);
         int line = 24;
@@ -110,7 +119,18 @@ public final class DemoPanel extends JPanel {
         target.drawString(String.format("Abweichung: %+.3f s", deviation), 16, line + 96);
         int gapPx = (int) Math.round(gapCm() * PX_PER_CM);
         target.setColor(Color.WHITE);
-        target.drawLine(width / 2, 0, width / 2, height);
-        target.drawLine(width / 2 + gapPx, 0, width / 2 + gapPx, height);
+        target.drawLine(viewportWidth, 0, viewportWidth, height);
+        target.drawLine(viewportWidth + gapPx, 0, viewportWidth + gapPx, height);
+    }
+
+    private void drawRuler(Graphics2D target, int height) {
+        target.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        target.setColor(new Color(0x80, 0xFF, 0x80));
+        int gapPx = (int) Math.round(gapCm() * PX_PER_CM);
+        for (int x = 0; x <= gapPx; x += (int) Math.round(PX_PER_CM)) {
+            int rulerX = viewportWidth + x;
+            target.drawLine(rulerX, height / 2 - 16, rulerX, height / 2 + 16);
+            target.drawString(Integer.toString(x / (int) Math.round(PX_PER_CM)), rulerX - 4, height / 2 + 32);
+        }
     }
 }

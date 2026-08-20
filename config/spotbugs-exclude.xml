@@ -12,4 +12,7 @@
     <Match>
         <Class name="de.raumfahrt.app.DemoWindow"/>
     </Match>
+    <Match>
+        <Class name="de.raumfahrt.app.ConfigDialog"/>
+    </Match>
 </FindBugsFilter>
