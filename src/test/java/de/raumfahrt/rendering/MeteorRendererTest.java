@@ -118,6 +118,42 @@ class MeteorRendererTest {
         assertTrue(coloredRowsAt(image, W / 2) >= MeteorRenderer.PIXEL_SIZE);
     }
 
+    @Test
+    void linkerMonitorRendertProjiziertLokal() {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new SpaceRenderer().render(graphics, W, H);
+        Meteor meteor = meteorAt(-62.5, 0, 500, 15);
+        new MeteorRenderer()
+                .render(
+                        graphics,
+                        new MonitorPairProjection(W, H, 0, 400),
+                        meteor,
+                        new MeteorShape(5),
+                        MonitorView.LEFT);
+        graphics.dispose();
+
+        assertTrue(rockAtPosition(image, W / 2, H / 2));
+    }
+
+    @Test
+    void rechterMonitorRendertProjiziertLokal() {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new SpaceRenderer().render(graphics, W, H);
+        Meteor meteor = meteorAt(62.5, 0, 500, 15);
+        new MeteorRenderer()
+                .render(
+                        graphics,
+                        new MonitorPairProjection(W, H, 0, 400),
+                        meteor,
+                        new MeteorShape(5),
+                        MonitorView.RIGHT);
+        graphics.dispose();
+
+        assertTrue(rockAtPosition(image, W / 2, H / 2));
+    }
+
     private int coloredRowsAt(BufferedImage image, int x) {
         int bg = image.getRGB(0, 0);
         int count = 0;

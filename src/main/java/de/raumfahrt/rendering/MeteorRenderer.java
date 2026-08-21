@@ -18,9 +18,14 @@ public final class MeteorRenderer {
     static final int PIXEL_SIZE = 6;
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
+        render(graphics, projection, meteor, shape, MonitorView.CENTERED);
+    }
+
+    public void render(
+            Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape, MonitorView view) {
         AffineTransform original = graphics.getTransform();
         graphics.translate(
-                projection.screenXCentered(meteor.x(), meteor.depth()), projection.screenY(meteor.y(), meteor.depth()));
+                view.screenX(projection, meteor.x(), meteor.depth()), projection.screenY(meteor.y(), meteor.depth()));
         graphics.rotate(meteor.rotation());
         Polygon polygon = shape.polygon(projection.scale(meteor.size(), meteor.depth()));
         graphics.setColor(METEOR_COLOR);
@@ -36,6 +41,16 @@ public final class MeteorRenderer {
             Meteor meteor,
             MeteorShape shape,
             MeteorTrail trail) {
+        renderTrail(graphics, projection, meteor, shape, trail, MonitorView.CENTERED);
+    }
+
+    public void renderTrail(
+            Graphics2D graphics,
+            MonitorPairProjection projection,
+            Meteor meteor,
+            MeteorShape shape,
+            MeteorTrail trail,
+            MonitorView view) {
         if (trail == null || trail.size() < 2) {
             return;
         }
@@ -51,9 +66,9 @@ public final class MeteorRenderer {
                     opacity));
             drawPixelatedSegment(
                     graphics,
-                    projection.screenXCentered(from.x(), from.depth()),
+                    view.screenX(projection, from.x(), from.depth()),
                     projection.screenY(from.y(), from.depth()),
-                    projection.screenXCentered(to.x(), to.depth()),
+                    view.screenX(projection, to.x(), to.depth()),
                     projection.screenY(to.y(), to.depth()),
                     size);
         }

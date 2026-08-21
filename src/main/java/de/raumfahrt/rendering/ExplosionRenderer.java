@@ -13,6 +13,10 @@ public final class ExplosionRenderer {
     public static final Color EXPLOSION_OUTLINE = new Color(0x8B, 0x45, 0x00);
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Explosion explosion) {
+        render(graphics, projection, explosion, MonitorView.CENTERED);
+    }
+
+    public void render(Graphics2D graphics, MonitorPairProjection projection, Explosion explosion, MonitorView view) {
         float opacity = (float) explosion.opacity();
         Color fill = new Color(
                 EXPLOSION_COLOR.getRed(), EXPLOSION_COLOR.getGreen(), EXPLOSION_COLOR.getBlue(), (int) (opacity * 255));
@@ -25,7 +29,7 @@ public final class ExplosionRenderer {
             for (int i = 0; i < 6; i++) {
                 double angle = fragment.rotation() + i * Math.PI / 3.0;
                 polygon.addPoint(
-                        (int) (projection.screenXCentered(fragment.x(), fragment.depth()) + Math.cos(angle) * radius),
+                        (int) (view.screenX(projection, fragment.x(), fragment.depth()) + Math.cos(angle) * radius),
                         (int) (projection.screenY(fragment.y(), fragment.depth()) + Math.sin(angle) * radius));
             }
             graphics.setColor(fill);

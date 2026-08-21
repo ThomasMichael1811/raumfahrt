@@ -8,6 +8,7 @@ import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.ExplosionRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
+import de.raumfahrt.rendering.MonitorView;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
 import de.raumfahrt.rendering.SunRenderer;
@@ -28,6 +29,7 @@ public final class SpacePanel extends JPanel {
     private final transient ExplosionRenderer explosionRenderer = new ExplosionRenderer();
     private final transient SunRenderer sunRenderer = new SunRenderer();
     private final transient SimulationWorld world;
+    private final transient MonitorView view;
     private transient BufferedImage offscreen;
 
     public SpacePanel(
@@ -36,11 +38,22 @@ public final class SpacePanel extends JPanel {
             MeteorRenderer meteorRenderer,
             CabinFrameRenderer frameRenderer,
             SimulationWorld world) {
+        this(renderer, starFieldRenderer, meteorRenderer, frameRenderer, world, MonitorView.CENTERED);
+    }
+
+    public SpacePanel(
+            SpaceRenderer renderer,
+            StarFieldRenderer starFieldRenderer,
+            MeteorRenderer meteorRenderer,
+            CabinFrameRenderer frameRenderer,
+            SimulationWorld world,
+            MonitorView view) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
         this.frameRenderer = frameRenderer;
         this.world = world;
+        this.view = view;
     }
 
     public SimulationWorld world() {
@@ -64,11 +77,11 @@ public final class SpacePanel extends JPanel {
         starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight());
         for (Meteor meteor : world.meteors()) {
             MeteorShape shape = new MeteorShape(meteor.shapeSeed());
-            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()));
-            meteorRenderer.render(target, projection, meteor, shape);
+            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()), view);
+            meteorRenderer.render(target, projection, meteor, shape, view);
         }
         for (Explosion explosion : world.explosions()) {
-            explosionRenderer.render(target, projection, explosion);
+            explosionRenderer.render(target, projection, explosion, view);
         }
         target.translate(world.cameraX(), 0);
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());

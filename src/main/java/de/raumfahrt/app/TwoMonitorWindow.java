@@ -9,6 +9,7 @@ import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
+import de.raumfahrt.rendering.MonitorView;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
 import java.awt.GraphicsDevice;
@@ -43,8 +44,8 @@ public final class TwoMonitorWindow {
         MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
-        windowOne = createWindow(devices[0], "Raumfahrt links");
-        windowTwo = createWindow(devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts");
+        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT);
+        windowTwo = createWindow(devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT);
         bindInput(windowOne);
         bindInput(windowTwo);
         setVisible();
@@ -57,12 +58,17 @@ public final class TwoMonitorWindow {
         gameLoop.start();
     }
 
-    private JFrame createWindow(GraphicsDevice device, String title) {
+    private JFrame createWindow(GraphicsDevice device, String title, MonitorView view) {
         Rectangle bounds = device.getDefaultConfiguration().getBounds();
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setContentPane(new SpacePanel(
-                new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), world));
+                new SpaceRenderer(),
+                new StarFieldRenderer(),
+                new MeteorRenderer(),
+                new CabinFrameRenderer(),
+                world,
+                view));
         frame.setUndecorated(true);
         frame.setBounds(bounds);
         return frame;
