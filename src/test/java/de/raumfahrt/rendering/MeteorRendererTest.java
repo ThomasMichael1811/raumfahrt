@@ -97,6 +97,38 @@ class MeteorRendererTest {
         assertTrue(countTrailPixels(image) > baseline);
     }
 
+    @Test
+    void schweifWirdAlsPixelblockGezeichnet() {
+        MeteorTrail trail = new MeteorTrail(1000.0);
+        trail.push(new MeteorTrail.TrailPoint(-20, 0, 600), 20.0);
+        trail.push(new MeteorTrail.TrailPoint(-10, 0, 550), 10.0);
+        trail.push(new MeteorTrail.TrailPoint(0, 0, 500), 10.0);
+
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new MeteorRenderer()
+                .renderTrail(
+                        graphics,
+                        new MonitorPairProjection(W, H, 0, 400),
+                        meteorAt(0, 0, 500, 15),
+                        new MeteorShape(5),
+                        trail);
+        graphics.dispose();
+
+        assertTrue(coloredRowsAt(image, W / 2) >= MeteorRenderer.PIXEL_SIZE);
+    }
+
+    private int coloredRowsAt(BufferedImage image, int x) {
+        int bg = image.getRGB(0, 0);
+        int count = 0;
+        for (int y = 0; y < image.getHeight(); y++) {
+            if (image.getRGB(x, y) != bg) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private int countTrailPixels(BufferedImage image) {
         int count = 0;
         int bg = image.getRGB(0, 0);

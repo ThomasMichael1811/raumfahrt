@@ -4,7 +4,6 @@ import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MeteorTrail;
 import de.raumfahrt.core.MonitorPairProjection;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -15,6 +14,8 @@ public final class MeteorRenderer {
     public static final Color METEOR_COLOR = new Color(0x6B, 0x5B, 0x45);
     public static final Color METEOR_OUTLINE = new Color(0x2E, 0x26, 0x1C);
     public static final Color TRAIL_COLOR = new Color(0x5A, 0x6B, 0x7A);
+
+    static final int PIXEL_SIZE = 6;
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
         AffineTransform original = graphics.getTransform();
@@ -48,12 +49,28 @@ public final class MeteorRenderer {
                     TRAIL_COLOR.getGreen() / 255.0f,
                     TRAIL_COLOR.getBlue() / 255.0f,
                     opacity));
-            graphics.setStroke(new BasicStroke(Math.max(1.0f, size * 0.1f)));
-            graphics.drawLine(
-                    (int) projection.screenXCentered(from.x(), from.depth()),
-                    (int) projection.screenY(from.y(), from.depth()),
-                    (int) projection.screenXCentered(to.x(), to.depth()),
-                    (int) projection.screenY(to.y(), to.depth()));
+            drawPixelatedSegment(
+                    graphics,
+                    projection.screenXCentered(from.x(), from.depth()),
+                    projection.screenY(from.y(), from.depth()),
+                    projection.screenXCentered(to.x(), to.depth()),
+                    projection.screenY(to.y(), to.depth()),
+                    size);
+        }
+    }
+
+    private void drawPixelatedSegment(
+            Graphics2D graphics, double x1, double y1, double x2, double y2, float meteorSize) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double distance = Math.hypot(dx, dy);
+        int steps = Math.max(1, (int) (distance / PIXEL_SIZE));
+        int blockSize = Math.max(PIXEL_SIZE, (int) (meteorSize * 0.3f));
+        for (int step = 0; step <= steps; step++) {
+            double t = step / (double) steps;
+            int px = (int) Math.round((x1 + dx * t) / PIXEL_SIZE) * PIXEL_SIZE;
+            int py = (int) Math.round((y1 + dy * t) / PIXEL_SIZE) * PIXEL_SIZE;
+            graphics.fillRect(px, py, blockSize, blockSize);
         }
     }
 }
