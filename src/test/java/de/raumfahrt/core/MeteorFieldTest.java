@@ -134,4 +134,20 @@ class MeteorFieldTest {
 
         assertTrue(field.explosions().isEmpty());
     }
+
+    @Test
+    void zielMeteorExplodiertAnDerFensterebene() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(20L), WIDTH, HEIGHT, 10.0, 10.0);
+        MeteorField field = new MeteorField(WIDTH, 5, spawner);
+
+        field.spawnAimedMeteor();
+        assertEquals(1, field.meteors().size());
+
+        for (int i = 0; i < 200 && !field.meteors().isEmpty(); i++) {
+            field.update(0.05);
+        }
+
+        assertTrue(field.meteors().isEmpty());
+        assertEquals(1, field.explosions().size());
+    }
 }

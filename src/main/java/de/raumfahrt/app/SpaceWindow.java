@@ -1,5 +1,6 @@
 package de.raumfahrt.app;
 
+import de.raumfahrt.core.EffectDispatcher;
 import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
@@ -37,6 +38,8 @@ public final class SpaceWindow extends JFrame {
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
         MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
+        EffectDispatcher effectDispatcher = new EffectDispatcher();
+        effectDispatcher.register(1, meteorField::spawnAimedMeteor);
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
         spacePanel = new SpacePanel(
@@ -47,6 +50,7 @@ public final class SpaceWindow extends JFrame {
         setLocation(screen.x, screen.y);
         setExtendedState(MAXIMIZED_BOTH);
         bindEscapeToClose();
+        bindEffectKeys(effectDispatcher);
         setVisible(true);
         gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
             world.update(deltaSeconds);
@@ -75,5 +79,20 @@ public final class SpaceWindow extends JFrame {
                 dispose();
             }
         });
+    }
+
+    private void bindEffectKeys(EffectDispatcher effectDispatcher) {
+        for (int key = 1; key <= 9; key++) {
+            int effectKey = key;
+            getRootPane()
+                    .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                    .put(KeyStroke.getKeyStroke("pressed " + key), "effect" + key);
+            getRootPane().getActionMap().put("effect" + key, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    effectDispatcher.trigger(effectKey);
+                }
+            });
+        }
     }
 }

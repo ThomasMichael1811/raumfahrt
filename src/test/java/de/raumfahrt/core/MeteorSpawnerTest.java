@@ -94,4 +94,19 @@ class MeteorSpawnerTest {
             assertTrue(fragment.size() >= 3 && fragment.size() <= 8);
         }
     }
+
+    @Test
+    void zielMeteorFliegtGeradeAufsFensterZu() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(17L), WIDTH, HEIGHT);
+
+        Meteor meteor = spawner.createAimedMeteor();
+
+        assertEquals(0.0, meteor.x(), 1e-9);
+        assertEquals(0.0, meteor.y(), 1e-9);
+        assertEquals(0.0, meteor.speedX(), 1e-9);
+        assertEquals(0.0, meteor.speedY(), 1e-9);
+        assertTrue(meteor.speedZ() < 0);
+        assertEquals(MeteorBehavior.STRAIGHT, meteor.behavior());
+        assertTrue(meteor.depth() >= 200 && meteor.depth() <= 900);
+    }
 }

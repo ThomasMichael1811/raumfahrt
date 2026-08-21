@@ -22,6 +22,7 @@ public final class MeteorSpawner {
     private static final double ZIGZAG_AMPLITUDE_RANGE = 80.0;
     private static final double ZIGZAG_MIN_FREQUENCY = 0.5;
     private static final double ZIGZAG_FREQUENCY_RANGE = 2.0;
+    private static final double EFFECT_DEPTH = 600.0;
 
     private final Random random;
     private final int width;
@@ -66,6 +67,26 @@ public final class MeteorSpawner {
                 zigzag.behavior(),
                 zigzag.amplitude(),
                 zigzag.frequency(),
+                0.0);
+    }
+
+    public Meteor createAimedMeteor() {
+        double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
+        return new Meteor(
+                nextId++,
+                0.0,
+                0.0,
+                EFFECT_DEPTH,
+                size,
+                0.0,
+                0.0,
+                -SPEED_Z,
+                random.nextInt(),
+                0.0,
+                rotationSpeed(),
+                MeteorBehavior.STRAIGHT,
+                0.0,
+                0.0,
                 0.0);
     }
 

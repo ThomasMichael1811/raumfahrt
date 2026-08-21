@@ -39,6 +39,14 @@ public final class MeteorField {
         return trails.get(meteorId);
     }
 
+    public void spawnAimedMeteor() {
+        Meteor meteor = spawner.createAimedMeteor();
+        meteors.add(meteor);
+        if (hasTrail(meteor)) {
+            trails.put(meteor.id(), new MeteorTrail(TRAIL_LENGTH_FACTOR * width));
+        }
+    }
+
     public void update(double deltaSeconds) {
         spawnMeteors(deltaSeconds);
         List<Meteor> survivors = moveMeteors(deltaSeconds);
