@@ -19,8 +19,8 @@ import javax.swing.JPanel;
 
 public final class SpacePanel extends JPanel {
 
-    private static final int FOCAL_PX = 400;
     private static final double GAP_PX = 0.0;
+    static final double DEFAULT_FOCAL_PX = 400.0;
 
     private final transient SpaceRenderer renderer;
     private final transient StarFieldRenderer starFieldRenderer;
@@ -30,7 +30,15 @@ public final class SpacePanel extends JPanel {
     private final transient SunRenderer sunRenderer = new SunRenderer();
     private final transient SimulationWorld world;
     private final transient MonitorView view;
+    private transient double focalPx = DEFAULT_FOCAL_PX;
     private transient BufferedImage offscreen;
+
+    public void setFocalPx(double focalPx) {
+        if (focalPx <= 0) {
+            throw new IllegalArgumentException("Focal muss positiv sein: " + focalPx);
+        }
+        this.focalPx = focalPx;
+    }
 
     public SpacePanel(
             SpaceRenderer renderer,
@@ -70,7 +78,7 @@ public final class SpacePanel extends JPanel {
         }
         Graphics2D target = offscreen.createGraphics();
         MonitorPairProjection projection =
-                new MonitorPairProjection(offscreen.getWidth(), offscreen.getHeight(), GAP_PX, FOCAL_PX);
+                new MonitorPairProjection(offscreen.getWidth(), offscreen.getHeight(), GAP_PX, focalPx);
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.translate(-world.cameraX(), 0);
         sunRenderer.render(target, world.sun());

@@ -4,6 +4,7 @@ import de.raumfahrt.core.EffectDispatcher;
 import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
+import de.raumfahrt.core.MonitorConfig;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
@@ -44,6 +45,7 @@ public final class SpaceWindow extends JFrame {
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
         spacePanel = new SpacePanel(
                 new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), world);
+        spacePanel.setFocalPx(MonitorConfig.load().calibration().focalPx(width));
         setContentPane(spacePanel);
         setUndecorated(true);
         setSize(width, height);

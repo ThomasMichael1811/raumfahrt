@@ -72,4 +72,55 @@ class MonitorConfigTest {
 
         assertEquals(20.0, config.gapCm());
     }
+
+    @Test
+    void kalibrierungHatDefaults() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        assertEquals(100.0, config.calibration().viewingDistanceCm());
+        assertEquals(53.0, config.calibration().screenWidthCm());
+    }
+
+    @Test
+    void setCalibrationSpeichertNeueWerte() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        config.setCalibration(new ScreenCalibration(120.0, 61.0));
+
+        assertEquals(120.0, config.calibration().viewingDistanceCm());
+        assertEquals(61.0, config.calibration().screenWidthCm());
+    }
+
+    @Test
+    void ungueltigeKalibrierungWirdAbgelehnt() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        assertThrows(IllegalArgumentException.class, () -> config.setCalibration(new ScreenCalibration(10.0, 53.0)));
+        assertThrows(IllegalArgumentException.class, () -> config.setCalibration(new ScreenCalibration(100.0, 500.0)));
+    }
+
+    @Test
+    void kalibrierungsRundreise() throws IOException {
+        Path file = tempDir.resolve("config.properties");
+        MonitorConfig config = new MonitorConfig(file);
+        config.setCalibration(new ScreenCalibration(150.0, 70.0));
+        config.save();
+
+        MonitorConfig loaded = new MonitorConfig(file);
+        loaded.readFromFile();
+
+        assertEquals(150.0, loaded.calibration().viewingDistanceCm());
+        assertEquals(70.0, loaded.calibration().screenWidthCm());
+    }
+
+    @Test
+    void kaputteKalibrierungFaelltAufDefault() throws IOException {
+        Path file = tempDir.resolve("config.properties");
+        Files.writeString(file, "view.distanceCm=abc\nview.screenWidthCm=xyz");
+        MonitorConfig config = new MonitorConfig(file);
+        config.readFromFile();
+
+        assertEquals(100.0, config.calibration().viewingDistanceCm());
+        assertEquals(53.0, config.calibration().screenWidthCm());
+    }
 }

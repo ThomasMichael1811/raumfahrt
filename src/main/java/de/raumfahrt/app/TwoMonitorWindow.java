@@ -3,6 +3,7 @@ package de.raumfahrt.app;
 import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
+import de.raumfahrt.core.MonitorConfig;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
@@ -44,8 +45,10 @@ public final class TwoMonitorWindow {
         MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
-        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT);
-        windowTwo = createWindow(devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT);
+        double focalPx = MonitorConfig.load().calibration().focalPx(width);
+        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, focalPx);
+        windowTwo = createWindow(
+                devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT, focalPx);
         bindInput(windowOne);
         bindInput(windowTwo);
         setVisible();
@@ -58,17 +61,19 @@ public final class TwoMonitorWindow {
         gameLoop.start();
     }
 
-    private JFrame createWindow(GraphicsDevice device, String title, MonitorView view) {
+    private JFrame createWindow(GraphicsDevice device, String title, MonitorView view, double focalPx) {
         Rectangle bounds = device.getDefaultConfiguration().getBounds();
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setContentPane(new SpacePanel(
+        SpacePanel panel = new SpacePanel(
                 new SpaceRenderer(),
                 new StarFieldRenderer(),
                 new MeteorRenderer(),
                 new CabinFrameRenderer(),
                 world,
-                view));
+                view);
+        panel.setFocalPx(focalPx);
+        frame.setContentPane(panel);
         frame.setUndecorated(true);
         frame.setBounds(bounds);
         return frame;
