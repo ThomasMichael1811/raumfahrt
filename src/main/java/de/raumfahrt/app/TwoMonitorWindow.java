@@ -17,6 +17,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import java.util.Random;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -35,8 +36,7 @@ public final class TwoMonitorWindow {
     private transient int panDirection;
 
     public TwoMonitorWindow() {
-        GraphicsDevice[] devices =
-                GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        GraphicsDevice[] devices = sortedDevices();
         Rectangle primary = devices[0].getDefaultConfiguration().getBounds();
         int width = primary.width;
         int height = primary.height;
@@ -102,6 +102,17 @@ public final class TwoMonitorWindow {
                 action.run();
             }
         });
+    }
+
+    private static GraphicsDevice[] sortedDevices() {
+        GraphicsDevice[] devices =
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        Arrays.sort(
+                devices,
+                (a, b) -> Integer.compare(
+                        a.getDefaultConfiguration().getBounds().x,
+                        b.getDefaultConfiguration().getBounds().x));
+        return devices;
     }
 
     public void dispose() {
