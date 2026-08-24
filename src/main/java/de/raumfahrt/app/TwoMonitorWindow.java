@@ -42,10 +42,10 @@ public final class TwoMonitorWindow {
         int height = primary.height;
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
-        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
+        double focalPx = MonitorConfig.load().calibration().focalPx(width);
+        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
-        double focalPx = MonitorConfig.load().calibration().focalPx(width);
         windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, focalPx);
         windowTwo = createWindow(
                 devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT, focalPx);

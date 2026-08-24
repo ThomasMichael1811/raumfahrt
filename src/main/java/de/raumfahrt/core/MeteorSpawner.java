@@ -6,6 +6,7 @@ import java.util.Random;
 
 public final class MeteorSpawner {
 
+    public static final double DEFAULT_FOCAL_PX = 400.0;
     private static final double DEFAULT_MIN_INTERVAL = 1.5;
     private static final double DEFAULT_MAX_INTERVAL = 3.5;
     private static final double MIN_SIZE = 15.0;
@@ -23,34 +24,48 @@ public final class MeteorSpawner {
     private static final double ZIGZAG_MIN_FREQUENCY = 0.5;
     private static final double ZIGZAG_FREQUENCY_RANGE = 2.0;
     private static final double EFFECT_DEPTH = 600.0;
+    private static final double SPAWN_MARGIN_PX = 60.0;
 
     private final Random random;
     private final int width;
     private final int height;
     private final double minInterval;
     private final double maxInterval;
+    private final double focalPx;
     private int nextId = 1;
 
     public MeteorSpawner(Random random, int width, int height) {
-        this(random, width, height, DEFAULT_MIN_INTERVAL, DEFAULT_MAX_INTERVAL);
+        this(random, width, height, DEFAULT_FOCAL_PX);
+    }
+
+    public MeteorSpawner(Random random, int width, int height, double focalPx) {
+        this(random, width, height, DEFAULT_MIN_INTERVAL, DEFAULT_MAX_INTERVAL, focalPx);
     }
 
     public MeteorSpawner(Random random, int width, int height, double minInterval, double maxInterval) {
+        this(random, width, height, minInterval, maxInterval, DEFAULT_FOCAL_PX);
+    }
+
+    public MeteorSpawner(Random random, int width, int height, double minInterval, double maxInterval, double focalPx) {
+        if (focalPx <= 0) {
+            throw new IllegalArgumentException("Focal muss positiv sein: " + focalPx);
+        }
         this.random = random;
         this.width = width;
         this.height = height;
         this.minInterval = minInterval;
         this.maxInterval = maxInterval;
+        this.focalPx = focalPx;
     }
 
     public Meteor createMeteor() {
         double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
         double speed = MIN_SPEED + random.nextDouble() * SPEED_RANGE;
         double speedX = random.nextBoolean() ? speed : -speed;
-        double x = randomX();
-        double y = randomY();
         double rotationSpeed = rotationSpeed();
         double depth = randomDepth();
+        double x = randomScreenOffset(width) * depth / focalPx;
+        double y = randomScreenOffset(height) * depth / focalPx;
         ZigzagOptions zigzag = randomZigzag();
         return new Meteor(
                 nextId++,
@@ -90,12 +105,9 @@ public final class MeteorSpawner {
                 0.0);
     }
 
-    private double randomX() {
-        return (random.nextDouble() - 0.5) * width;
-    }
-
-    private double randomY() {
-        return (random.nextDouble() - 0.5) * height;
+    private double randomScreenOffset(int extentPx) {
+        double halfExtent = extentPx / 2.0 - SPAWN_MARGIN_PX;
+        return (random.nextDouble() * 2.0 - 1.0) * halfExtent;
     }
 
     public List<ExplosionFragment> createExplosionFragments(double x, double y, double depth) {

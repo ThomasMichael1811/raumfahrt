@@ -1,6 +1,7 @@
 package de.raumfahrt.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
@@ -17,15 +18,54 @@ class MeteorSpawnerTest {
 
         Meteor meteor = spawner.createMeteor();
 
-        assertTrue(Math.abs(meteor.x()) <= WIDTH / 2.0);
-        assertTrue(meteor.y() >= -HEIGHT / 2.0 && meteor.y() < HEIGHT / 2.0);
-        assertTrue(meteor.size() >= 15 && meteor.size() <= 45);
+        assertTrue(Math.abs(meteor.size()) >= 15 && meteor.size() <= 45);
         assertTrue(Math.abs(meteor.speedX()) >= 60 && Math.abs(meteor.speedX()) <= 120);
         assertTrue(meteor.rotation() == 0.0);
         assertTrue(meteor.rotationSpeed() >= 1.0 * 2.0 * Math.PI / 60.0
                 && meteor.rotationSpeed() <= 10.0 * 2.0 * Math.PI / 60.0);
         assertTrue(meteor.depth() >= 200 && meteor.depth() <= 900);
         assertTrue(meteor.speedZ() < 0);
+    }
+
+    @Test
+    void meteorIstBeiStandardFocalImSichtbereich() {
+        assertImSichtbereich(new MeteorSpawner(new Random(5L), WIDTH, HEIGHT), 400.0, 500);
+    }
+
+    @Test
+    void meteoreSindBeiKalibriertemFocalImSichtbereich() {
+        double calibratedFocal = 100.0 * WIDTH / 53.0;
+        MeteorSpawner spawner = new MeteorSpawner(new Random(21L), WIDTH, HEIGHT, calibratedFocal);
+
+        for (int i = 0; i < 500; i++) {
+            assertImSichtbereich(spawner, calibratedFocal, 1);
+        }
+    }
+
+    @Test
+    void meteoreBleibenUeberDieLebensdauerImSichtbereichStartendAmRand() {
+        double focal = 2264.0;
+        MeteorSpawner spawner = new MeteorSpawner(new Random(31L), WIDTH, HEIGHT, focal);
+
+        for (int i = 0; i < 200; i++) {
+            Meteor meteor = spawner.createMeteor();
+            assertTrue(Math.abs(focal * meteor.x() / meteor.depth()) <= WIDTH / 2.0);
+        }
+    }
+
+    @Test
+    void spawnerLehntUngueltigenFocalAb() {
+        assertThrows(IllegalArgumentException.class, () -> new MeteorSpawner(new Random(), WIDTH, HEIGHT, 0.0));
+        assertThrows(IllegalArgumentException.class, () -> new MeteorSpawner(new Random(), WIDTH, HEIGHT, -1.0));
+    }
+
+    private void assertImSichtbereich(MeteorSpawner spawner, double focal, int warmup) {
+        for (int i = 0; i < warmup; i++) {
+            spawner.createMeteor();
+        }
+        Meteor meteor = spawner.createMeteor();
+        assertTrue(Math.abs(focal * meteor.x() / meteor.depth()) <= WIDTH / 2.0);
+        assertTrue(Math.abs(focal * meteor.y() / meteor.depth()) <= HEIGHT / 2.0);
     }
 
     @Test

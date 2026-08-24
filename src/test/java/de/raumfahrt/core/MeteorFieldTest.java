@@ -125,14 +125,15 @@ class MeteorFieldTest {
 
     @Test
     void explosionVerschwindetNachLebensdauer() {
-        MeteorSpawner spawner = new MeteorSpawner(new Random(18L), WIDTH, HEIGHT, 0.0, 0.0);
+        MeteorSpawner spawner = new MeteorSpawner(new Random(18L), WIDTH, HEIGHT, 100.0, 100.0);
         MeteorField field = new MeteorField(WIDTH, 1, spawner);
-        field.update(10.0);
+        field.update(100.0);
         assertTrue(field.explosions().size() >= 1);
 
         field.update(2.0);
 
         assertTrue(field.explosions().isEmpty());
+        assertTrue(field.meteors().isEmpty());
     }
 
     @Test

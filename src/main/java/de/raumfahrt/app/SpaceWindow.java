@@ -34,18 +34,18 @@ public final class SpaceWindow extends JFrame {
         super("Raumfahrt");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Rectangle screen = screenBounds();
-        int width = screen.width;
-        int height = screen.height;
+        int width = screen.width, height = screen.height;
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
-        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height));
+        double focalPx = MonitorConfig.load().calibration().focalPx(width);
+        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height, focalPx));
         EffectDispatcher effectDispatcher = new EffectDispatcher();
         effectDispatcher.register(1, meteorField::spawnAimedMeteor);
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
         spacePanel = new SpacePanel(
                 new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), world);
-        spacePanel.setFocalPx(MonitorConfig.load().calibration().focalPx(width));
+        spacePanel.setFocalPx(focalPx);
         setContentPane(spacePanel);
         setUndecorated(true);
         setSize(width, height);
