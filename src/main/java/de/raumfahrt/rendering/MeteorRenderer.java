@@ -16,6 +16,7 @@ public final class MeteorRenderer {
     public static final Color TRAIL_COLOR = new Color(0x5A, 0x6B, 0x7A);
 
     static final int PIXEL_SIZE = 6;
+    private static final float MAX_TRAIL_SPREAD = 24.0f;
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
         render(graphics, projection, meteor, shape, MonitorView.CENTERED);
@@ -54,9 +55,8 @@ public final class MeteorRenderer {
         if (trail == null || trail.size() < 2) {
             return;
         }
-        float size = (float) projection.scale(meteor.size(), meteor.depth());
-        int segments = trail.size() - 1;
-        for (int i = 0; i < segments; i++) {
+        int last = trail.size() - 1;
+        for (int i = 0; i < last; i++) {
             MeteorTrail.TrailPoint from = trail.points().get(i);
             MeteorTrail.TrailPoint to = trail.points().get(i + 1);
             float opacity = (float) trail.opacityAt(i);
@@ -65,30 +65,55 @@ public final class MeteorRenderer {
                     TRAIL_COLOR.getGreen() / 255.0f,
                     TRAIL_COLOR.getBlue() / 255.0f,
                     opacity));
-            float position = segments == 0 ? 0 : (float) i / segments;
-            float widthFactor = 1.0f + 2.0f * (1.0f - position);
-            drawPixelatedSegment(
+            float spread = MAX_TRAIL_SPREAD * (1.0f - (float) i / last);
+            drawSpreadSegment(
                     graphics,
                     view.screenX(projection, from.x(), from.depth()),
                     projection.screenY(from.y(), from.depth()),
                     view.screenX(projection, to.x(), to.depth()),
                     projection.screenY(to.y(), to.depth()),
-                    size * widthFactor);
+                    spread);
         }
     }
 
-    private void drawPixelatedSegment(
-            Graphics2D graphics, double x1, double y1, double x2, double y2, float meteorSize) {
+    private void drawSpreadSegment(Graphics2D graphics, double x1, double y1, double x2, double y2, float spread) {
         double dx = x2 - x1;
         double dy = y2 - y1;
         double distance = Math.hypot(dx, dy);
+        if (distance < 0.5) {
+            drawCross(graphics, x1, y1, spread);
+            return;
+        }
+        double perpX = -dy / distance;
+        double perpY = dx / distance;
         int steps = Math.max(1, (int) (distance / PIXEL_SIZE));
-        int blockSize = Math.max(PIXEL_SIZE, (int) (meteorSize * 0.3f));
+        int cross = 1 + (int) (spread / PIXEL_SIZE);
+        float spacing = cross > 1 ? spread / (cross - 1) : 0;
         for (int step = 0; step <= steps; step++) {
             double t = step / (double) steps;
-            int px = (int) Math.round((x1 + dx * t) / PIXEL_SIZE) * PIXEL_SIZE;
-            int py = (int) Math.round((y1 + dy * t) / PIXEL_SIZE) * PIXEL_SIZE;
-            graphics.fillRect(px, py, blockSize, blockSize);
+            double cx = x1 + dx * t;
+            double cy = y1 + dy * t;
+            for (int c = 0; c < cross; c++) {
+                float offset = cross <= 1 ? 0 : -spacing / 2 + spacing * c;
+                int px = (int) Math.round((cx + perpX * offset) / PIXEL_SIZE) * PIXEL_SIZE;
+                int py = (int) Math.round((cy + perpY * offset) / PIXEL_SIZE) * PIXEL_SIZE;
+                graphics.fillRect(px, py, PIXEL_SIZE, PIXEL_SIZE);
+            }
+        }
+    }
+
+    private void drawCross(Graphics2D graphics, double x, double y, float spread) {
+        int cx = (int) Math.round(x / PIXEL_SIZE) * PIXEL_SIZE;
+        int cy = (int) Math.round(y / PIXEL_SIZE) * PIXEL_SIZE;
+        if (spread < PIXEL_SIZE) {
+            graphics.fillRect(cx, cy, PIXEL_SIZE, PIXEL_SIZE);
+            return;
+        }
+        int cross = 1 + (int) (spread / PIXEL_SIZE);
+        float spacing = spread / (cross - 1);
+        for (int c = 0; c < cross; c++) {
+            int px = cx + (int) (-spacing / 2 + spacing * c);
+            graphics.fillRect(px, cy, PIXEL_SIZE, PIXEL_SIZE);
         }
     }
 }
