@@ -47,6 +47,14 @@ public final class MeteorField {
         }
     }
 
+    public void spawnCrossingMeteor(boolean fromLeft) {
+        Meteor meteor = spawner.createCrossingMeteor(fromLeft);
+        meteors.add(meteor);
+        if (hasTrail(meteor)) {
+            trails.put(meteor.id(), new MeteorTrail(TRAIL_LENGTH_FACTOR * width));
+        }
+    }
+
     public void update(double deltaSeconds) {
         spawnMeteors(deltaSeconds);
         List<Meteor> survivors = moveMeteors(deltaSeconds);

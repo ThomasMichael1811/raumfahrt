@@ -105,6 +105,29 @@ public final class MeteorSpawner {
                 0.0);
     }
 
+    public Meteor createCrossingMeteor(boolean fromLeft) {
+        double size = MIN_SIZE + random.nextDouble() * SIZE_RANGE;
+        double speed = MIN_SPEED + random.nextDouble() * SPEED_RANGE;
+        double speedX = fromLeft ? speed : -speed;
+        double x = fromLeft ? -width / 2.0 : width / 2.0;
+        return new Meteor(
+                nextId++,
+                x,
+                0.0,
+                EFFECT_DEPTH,
+                size,
+                speedX,
+                0.0,
+                -SPEED_Z,
+                random.nextInt(),
+                0.0,
+                rotationSpeed(),
+                MeteorBehavior.STRAIGHT,
+                0.0,
+                0.0,
+                0.0);
+    }
+
     private double randomScreenOffset(int extentPx) {
         double halfExtent = extentPx / 2.0 - SPAWN_MARGIN_PX;
         return (random.nextDouble() * 2.0 - 1.0) * halfExtent;

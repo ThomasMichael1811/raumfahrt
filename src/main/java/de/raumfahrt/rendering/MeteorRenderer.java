@@ -55,7 +55,8 @@ public final class MeteorRenderer {
             return;
         }
         float size = (float) projection.scale(meteor.size(), meteor.depth());
-        for (int i = 0; i < trail.size() - 1; i++) {
+        int segments = trail.size() - 1;
+        for (int i = 0; i < segments; i++) {
             MeteorTrail.TrailPoint from = trail.points().get(i);
             MeteorTrail.TrailPoint to = trail.points().get(i + 1);
             float opacity = (float) trail.opacityAt(i);
@@ -64,13 +65,15 @@ public final class MeteorRenderer {
                     TRAIL_COLOR.getGreen() / 255.0f,
                     TRAIL_COLOR.getBlue() / 255.0f,
                     opacity));
+            float position = segments == 0 ? 0 : (float) i / segments;
+            float widthFactor = 1.0f + 2.0f * (1.0f - position);
             drawPixelatedSegment(
                     graphics,
                     view.screenX(projection, from.x(), from.depth()),
                     projection.screenY(from.y(), from.depth()),
                     view.screenX(projection, to.x(), to.depth()),
                     projection.screenY(to.y(), to.depth()),
-                    size);
+                    size * widthFactor);
         }
     }
 

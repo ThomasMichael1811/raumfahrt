@@ -149,4 +149,26 @@ class MeteorSpawnerTest {
         assertEquals(MeteorBehavior.STRAIGHT, meteor.behavior());
         assertTrue(meteor.depth() >= 200 && meteor.depth() <= 900);
     }
+
+    @Test
+    void crossingMeteorStartetAmLinkenRandUndFliegtRechts() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(23L), WIDTH, HEIGHT);
+
+        Meteor meteor = spawner.createCrossingMeteor(true);
+
+        assertTrue(meteor.x() < 0);
+        assertTrue(meteor.speedX() > 0);
+        assertTrue(meteor.speedZ() < 0);
+    }
+
+    @Test
+    void crossingMeteorStartetAmRechtenRandUndFliegtLinks() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(29L), WIDTH, HEIGHT);
+
+        Meteor meteor = spawner.createCrossingMeteor(false);
+
+        assertTrue(meteor.x() > 0);
+        assertTrue(meteor.speedX() < 0);
+        assertTrue(meteor.speedZ() < 0);
+    }
 }

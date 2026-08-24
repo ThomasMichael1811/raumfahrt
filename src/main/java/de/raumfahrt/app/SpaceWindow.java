@@ -38,9 +38,9 @@ public final class SpaceWindow extends JFrame {
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
         double focalPx = MonitorConfig.load().calibration().focalPx(width);
-        MeteorField meteorField = new MeteorField(width, 2, new MeteorSpawner(new Random(), width, height, focalPx));
+        MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         EffectDispatcher effectDispatcher = new EffectDispatcher();
-        effectDispatcher.register(1, meteorField::spawnAimedMeteor);
+        registerEffects(effectDispatcher, meteorField);
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
         spacePanel = new SpacePanel(
@@ -59,6 +59,12 @@ public final class SpaceWindow extends JFrame {
             spacePanel.repaint();
         });
         gameLoop.start();
+    }
+
+    private void registerEffects(EffectDispatcher effectDispatcher, MeteorField meteorField) {
+        effectDispatcher.register(1, meteorField::spawnAimedMeteor);
+        effectDispatcher.register(2, () -> meteorField.spawnCrossingMeteor(true));
+        effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
     }
 
     @Override
