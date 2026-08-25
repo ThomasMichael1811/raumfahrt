@@ -8,6 +8,7 @@ import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
+import de.raumfahrt.core.WarpScheduler;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.MonitorView;
@@ -33,6 +34,7 @@ public final class TwoMonitorWindow {
     private final transient GameLoop gameLoop;
     private final transient JFrame windowOne;
     private final transient JFrame windowTwo;
+    private final transient WarpScheduler warpScheduler;
     private transient int panDirection;
 
     public TwoMonitorWindow() {
@@ -46,6 +48,7 @@ public final class TwoMonitorWindow {
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
+        warpScheduler = new WarpScheduler(new Random(), world.warpState());
         windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, focalPx);
         windowTwo = createWindow(
                 devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT, focalPx);
@@ -53,6 +56,7 @@ public final class TwoMonitorWindow {
         bindInput(windowTwo);
         setVisible();
         gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
+            warpScheduler.update(deltaSeconds);
             world.moveCamera(panDirection, deltaSeconds);
             world.update(deltaSeconds);
             windowOne.getContentPane().repaint();
@@ -89,6 +93,7 @@ public final class TwoMonitorWindow {
         bindAction(frame, "LEFT", "panLeft", () -> panDirection = -PAN_SPEED);
         bindAction(frame, "RIGHT", "panRight", () -> panDirection = PAN_SPEED);
         bindAction(frame, "SPACE", "pause", world::togglePause);
+        bindAction(frame, "0", "warp", warpScheduler::triggerNow);
         bindAction(frame, "released LEFT", "panStop", () -> panDirection = 0);
         bindAction(frame, "released RIGHT", "panStop", () -> panDirection = 0);
     }

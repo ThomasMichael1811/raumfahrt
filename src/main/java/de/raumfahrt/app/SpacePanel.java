@@ -82,7 +82,7 @@ public final class SpacePanel extends JPanel {
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.translate(-world.cameraX(), 0);
         sunRenderer.render(target, world.sun());
-        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight());
+        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight(), world.warpState());
         for (Meteor meteor : world.meteors()) {
             MeteorShape shape = new MeteorShape(meteor.shapeSeed());
             meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()), view);

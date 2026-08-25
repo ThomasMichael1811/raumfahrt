@@ -9,6 +9,7 @@ public final class SimulationWorld {
     private final int width;
     private final StarField starField;
     private final MeteorField meteorField;
+    private final WarpState warpState;
     private Sun sun;
     private double cameraX;
     private boolean paused;
@@ -18,6 +19,7 @@ public final class SimulationWorld {
         this.starField = starField;
         this.meteorField = meteorField;
         this.sun = sun;
+        this.warpState = new WarpState();
     }
 
     public void update(double deltaSeconds) {
@@ -27,6 +29,7 @@ public final class SimulationWorld {
         sun = sun.moved(deltaSeconds, width);
         starField.update(deltaSeconds);
         meteorField.update(deltaSeconds);
+        warpState.update(deltaSeconds);
     }
 
     public void moveCamera(double direction, double deltaSeconds) {
@@ -71,5 +74,9 @@ public final class SimulationWorld {
 
     public List<Explosion> explosions() {
         return meteorField.explosions();
+    }
+
+    public WarpState warpState() {
+        return warpState;
     }
 }

@@ -9,6 +9,7 @@ import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
+import de.raumfahrt.core.WarpScheduler;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
@@ -35,16 +36,10 @@ public final class SpaceWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Rectangle screen = screenBounds();
         int width = screen.width, height = screen.height;
-        StarGenerator starGenerator = new StarGenerator();
-        StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
         double focalPx = MonitorConfig.load().calibration().focalPx(width);
-        MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
-        EffectDispatcher effectDispatcher = new EffectDispatcher();
-        registerEffects(effectDispatcher, meteorField);
-        Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
-        SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
+        WorldObjects wo = createWorld(width, height, focalPx);
         spacePanel = new SpacePanel(
-                new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), world);
+                new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), wo.world);
         spacePanel.setFocalPx(focalPx);
         setContentPane(spacePanel);
         setUndecorated(true);
@@ -52,19 +47,40 @@ public final class SpaceWindow extends JFrame {
         setLocation(screen.x, screen.y);
         setExtendedState(MAXIMIZED_BOTH);
         bindEscapeToClose();
-        bindEffectKeys(effectDispatcher);
+        bindEffectKeys(wo.effectDispatcher);
         setVisible(true);
         gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
-            world.update(deltaSeconds);
+            wo.warpScheduler.update(deltaSeconds);
+            wo.world.update(deltaSeconds);
             spacePanel.repaint();
         });
         gameLoop.start();
     }
 
-    private void registerEffects(EffectDispatcher effectDispatcher, MeteorField meteorField) {
+    private WorldObjects createWorld(int width, int height, double focalPx) {
+        StarGenerator starGenerator = new StarGenerator();
+        StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
+        MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
+        Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
+        SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
+        WarpScheduler warpScheduler = new WarpScheduler(new Random(), world.warpState());
+        EffectDispatcher effectDispatcher = new EffectDispatcher();
+        registerEffects(effectDispatcher, meteorField, world, warpScheduler);
+        return new WorldObjects(world, warpScheduler, effectDispatcher);
+    }
+
+    private record WorldObjects(
+            SimulationWorld world, WarpScheduler warpScheduler, EffectDispatcher effectDispatcher) {}
+
+    private void registerEffects(
+            EffectDispatcher effectDispatcher,
+            MeteorField meteorField,
+            SimulationWorld world,
+            WarpScheduler warpScheduler) {
         effectDispatcher.register(1, meteorField::spawnAimedMeteor);
         effectDispatcher.register(2, () -> meteorField.spawnCrossingMeteor(true));
         effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
+        effectDispatcher.register(0, warpScheduler::triggerNow);
     }
 
     @Override
@@ -90,7 +106,7 @@ public final class SpaceWindow extends JFrame {
     }
 
     private void bindEffectKeys(EffectDispatcher effectDispatcher) {
-        for (int key = 1; key <= 9; key++) {
+        for (int key = 0; key <= 9; key++) {
             int effectKey = key;
             getRootPane()
                     .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
