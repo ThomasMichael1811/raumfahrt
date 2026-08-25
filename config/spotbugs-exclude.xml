@@ -16,6 +16,9 @@
         <Class name="de.raumfahrt.app.ConfigDialog"/>
     </Match>
     <Match>
-        <Class name="de.raumfahrt.app.TwoMonitorWindow"/>
+        <Class name="de.raumfahrt.app.ConfigDialog"/>
+    </Match>
+    <Match>
+        <Class name="de.raumfahrt.core.WarpScheduler"/>
     </Match>
 </FindBugsFilter>

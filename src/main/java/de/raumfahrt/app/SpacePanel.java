@@ -4,7 +4,9 @@ import de.raumfahrt.core.Explosion;
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MonitorPairProjection;
+import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
+import de.raumfahrt.core.Sun;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.ExplosionRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
@@ -83,7 +85,7 @@ public final class SpacePanel extends JPanel {
         target.translate(-world.cameraX(), 0);
         boolean warpActive = world.warpState().active();
         if (!warpActive) {
-            sunRenderer.render(target, world.sun());
+            renderSun(target);
         }
         starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight(), world.warpState());
         if (!warpActive) {
@@ -107,6 +109,23 @@ public final class SpacePanel extends JPanel {
     private void renderExplosions(Graphics2D target, MonitorPairProjection projection, MonitorView view) {
         for (Explosion explosion : world.explosions()) {
             explosionRenderer.render(target, projection, explosion, view);
+        }
+    }
+
+    private void renderSun(Graphics2D target) {
+        Sun sun = world.sun();
+        SceneType scene = world.scene();
+        switch (scene) {
+            case NO_SUN -> {
+                return;
+            }
+            case RED_SUN -> sunRenderer.render(target, sun, Sun.SunColor.RED);
+            case TWO_SUNS -> {
+                sunRenderer.render(target, sun, Sun.SunColor.YELLOW);
+                Sun second = new Sun(world.width() * 0.85, sun.y() * 0.7, sun.radius(), sun.speedX());
+                sunRenderer.render(target, second, Sun.SunColor.YELLOW);
+            }
+            default -> sunRenderer.render(target, sun, Sun.SunColor.YELLOW);
         }
     }
 }

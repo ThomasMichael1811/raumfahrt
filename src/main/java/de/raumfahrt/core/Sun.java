@@ -1,6 +1,10 @@
 package de.raumfahrt.core;
 
-public record Sun(double x, double y, double radius, double speedX) {
+public record Sun(double x, double y, double radius, double speedX, SunColor color) {
+
+    public Sun(double x, double y, double radius, double speedX) {
+        this(x, y, radius, speedX, SunColor.YELLOW);
+    }
 
     public Sun moved(double deltaSeconds, int width) {
         if (width <= 0) {
@@ -10,6 +14,11 @@ public record Sun(double x, double y, double radius, double speedX) {
         while (x < 0) {
             x += width;
         }
-        return new Sun(x, y, radius, speedX);
+        return new Sun(x, y, radius, speedX, color);
+    }
+
+    public enum SunColor {
+        YELLOW,
+        RED
     }
 }
