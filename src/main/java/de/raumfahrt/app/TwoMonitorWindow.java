@@ -4,6 +4,7 @@ import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.MonitorConfig;
+import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
@@ -28,7 +29,7 @@ import javax.swing.KeyStroke;
 public final class TwoMonitorWindow {
 
     private static final int UPDATES_PER_SECOND = 60;
-    private static final int PAN_SPEED = 300;
+    private static final int PAN_SPEED = 30;
 
     private final transient SimulationWorld world;
     private final transient GameLoop gameLoop;
@@ -94,6 +95,10 @@ public final class TwoMonitorWindow {
         bindAction(frame, "RIGHT", "panRight", () -> panDirection = PAN_SPEED);
         bindAction(frame, "SPACE", "pause", world::togglePause);
         bindAction(frame, "0", "warp", warpScheduler::triggerNow);
+        bindAction(frame, "5", "sceneSmallSun", () -> world.setScene(SceneType.SMALL_SUN_LEFT));
+        bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
+        bindAction(frame, "7", "sceneRedSun", () -> world.setScene(SceneType.RED_SUN));
+        bindAction(frame, "8", "sceneTwoSuns", () -> world.setScene(SceneType.TWO_SUNS));
         bindAction(frame, "released LEFT", "panStop", () -> panDirection = 0);
         bindAction(frame, "released RIGHT", "panStop", () -> panDirection = 0);
     }

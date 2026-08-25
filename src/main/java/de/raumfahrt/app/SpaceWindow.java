@@ -5,6 +5,7 @@ import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.MonitorConfig;
+import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
@@ -81,6 +82,10 @@ public final class SpaceWindow extends JFrame {
         effectDispatcher.register(2, () -> meteorField.spawnCrossingMeteor(true));
         effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
         effectDispatcher.register(0, warpScheduler::triggerNow);
+        effectDispatcher.register(5, () -> world.setScene(SceneType.SMALL_SUN_LEFT));
+        effectDispatcher.register(6, () -> world.setScene(SceneType.NO_SUN));
+        effectDispatcher.register(7, () -> world.setScene(SceneType.RED_SUN));
+        effectDispatcher.register(8, () -> world.setScene(SceneType.TWO_SUNS));
     }
 
     @Override
