@@ -8,7 +8,7 @@ import java.util.List;
 
 public final class StarFieldRenderer {
 
-    private static final double STREAK_FACTOR = 0.8;
+    private static final double STREAK_FACTOR = 8.0;
 
     public void render(Graphics2D graphics, List<Star> stars, int width, int height) {
         render(graphics, stars, width, height, new WarpState());
