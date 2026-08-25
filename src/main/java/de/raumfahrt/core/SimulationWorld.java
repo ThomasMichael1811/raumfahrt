@@ -102,6 +102,12 @@ public final class SimulationWorld {
         return meteorField.explosions();
     }
 
+    public void switchScene() {
+        SceneType[] scenes = {SceneType.SMALL_SUN_LEFT, SceneType.NO_SUN, SceneType.RED_SUN, SceneType.TWO_SUNS};
+        int next = (scene.ordinal() + 1) % scenes.length;
+        setScene(scenes[next]);
+    }
+
     public WarpState warpState() {
         return warpState;
     }

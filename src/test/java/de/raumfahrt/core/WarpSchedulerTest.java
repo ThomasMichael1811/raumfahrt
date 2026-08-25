@@ -12,7 +12,7 @@ class WarpSchedulerTest {
     @Test
     void schedulerStartsInactive() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         assertFalse(state.active());
     }
@@ -20,7 +20,7 @@ class WarpSchedulerTest {
     @Test
     void triggerNowActivatesWarp() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         scheduler.triggerNow();
 
@@ -31,7 +31,7 @@ class WarpSchedulerTest {
     @Test
     void schedulerTriggersAfterInterval() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         scheduler.update(180.0);
 
@@ -41,7 +41,7 @@ class WarpSchedulerTest {
     @Test
     void schedulerDoesNotTriggerBeforeInterval() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         scheduler.update(30.0);
 
@@ -51,7 +51,7 @@ class WarpSchedulerTest {
     @Test
     void schedulerResetsAfterWarpEnds() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         scheduler.triggerNow();
         assertTrue(state.active());
@@ -66,7 +66,7 @@ class WarpSchedulerTest {
     @Test
     void schedulerDoesNotTriggerWhileWarpActive() {
         WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state);
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
 
         scheduler.triggerNow();
         double remaining = state.remainingSeconds();
@@ -75,5 +75,19 @@ class WarpSchedulerTest {
 
         assertTrue(state.active());
         assertEquals(remaining, state.remainingSeconds());
+    }
+
+    @Test
+    void onWarpEndCallbackIsCalled() {
+        WarpState state = new WarpState();
+        boolean[] callbackCalled = {false};
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> callbackCalled[0] = true);
+
+        scheduler.triggerNow();
+        scheduler.update(1.0);
+        state.update(25.0);
+        scheduler.update(1.0);
+
+        assertTrue(callbackCalled[0]);
     }
 }

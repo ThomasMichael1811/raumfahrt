@@ -11,17 +11,30 @@ public final class WarpScheduler {
 
     private final Random random;
     private final WarpState warpState;
+    private final Runnable onWarpEnd;
     private double timeToNextWarp;
+    private boolean warpWasActive;
 
-    public WarpScheduler(Random random, WarpState warpState) {
+    public WarpScheduler(Random random, WarpState warpState, Runnable onWarpEnd) {
         this.random = random;
         this.warpState = warpState;
+        this.onWarpEnd = onWarpEnd;
         this.timeToNextWarp = randomInterval();
+        this.warpWasActive = false;
     }
 
     public void update(double deltaSeconds) {
-        if (warpState.active()) {
+        boolean active = warpState.active();
+        if (active) {
+            warpWasActive = true;
             return;
+        }
+        if (warpWasActive) {
+            warpWasActive = false;
+            warpState.deactivate();
+            if (onWarpEnd != null) {
+                onWarpEnd.run();
+            }
         }
         timeToNextWarp -= deltaSeconds;
         if (timeToNextWarp <= 0.0) {
@@ -33,6 +46,7 @@ public final class WarpScheduler {
     public void triggerNow() {
         warpState.activate(randomDuration(), warpSpeed());
         timeToNextWarp = randomInterval();
+        warpWasActive = false;
     }
 
     private double randomInterval() {

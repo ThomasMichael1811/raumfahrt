@@ -49,7 +49,7 @@ public final class TwoMonitorWindow {
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         world = new SimulationWorld(width, starField, meteorField, sun);
-        warpScheduler = new WarpScheduler(new Random(), world.warpState());
+        warpScheduler = new WarpScheduler(new Random(), world.warpState(), world::switchScene);
         windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, focalPx);
         windowTwo = createWindow(
                 devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT, focalPx);

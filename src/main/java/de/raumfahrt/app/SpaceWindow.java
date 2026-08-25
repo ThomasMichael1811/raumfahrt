@@ -64,7 +64,7 @@ public final class SpaceWindow extends JFrame {
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
-        WarpScheduler warpScheduler = new WarpScheduler(new Random(), world.warpState());
+        WarpScheduler warpScheduler = new WarpScheduler(new Random(), world.warpState(), world::switchScene);
         EffectDispatcher effectDispatcher = new EffectDispatcher();
         registerEffects(effectDispatcher, meteorField, world, warpScheduler);
         return new WorldObjects(world, warpScheduler, effectDispatcher);
