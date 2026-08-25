@@ -81,19 +81,32 @@ public final class SpacePanel extends JPanel {
                 new MonitorPairProjection(offscreen.getWidth(), offscreen.getHeight(), GAP_PX, focalPx);
         renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.translate(-world.cameraX(), 0);
-        sunRenderer.render(target, world.sun());
-        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight(), world.warpState());
-        for (Meteor meteor : world.meteors()) {
-            MeteorShape shape = new MeteorShape(meteor.shapeSeed());
-            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()), view);
-            meteorRenderer.render(target, projection, meteor, shape, view);
+        boolean warpActive = world.warpState().active();
+        if (!warpActive) {
+            sunRenderer.render(target, world.sun());
         }
-        for (Explosion explosion : world.explosions()) {
-            explosionRenderer.render(target, projection, explosion, view);
+        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight(), world.warpState());
+        if (!warpActive) {
+            renderMeteors(target, projection, view);
+            renderExplosions(target, projection, view);
         }
         target.translate(world.cameraX(), 0);
         frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
+    }
+
+    private void renderMeteors(Graphics2D target, MonitorPairProjection projection, MonitorView view) {
+        for (Meteor meteor : world.meteors()) {
+            MeteorShape shape = new MeteorShape(meteor.shapeSeed());
+            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()), view);
+            meteorRenderer.render(target, projection, meteor, shape, view);
+        }
+    }
+
+    private void renderExplosions(Graphics2D target, MonitorPairProjection projection, MonitorView view) {
+        for (Explosion explosion : world.explosions()) {
+            explosionRenderer.render(target, projection, explosion, view);
+        }
     }
 }
