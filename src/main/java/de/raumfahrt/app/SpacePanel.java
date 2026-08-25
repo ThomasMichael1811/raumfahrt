@@ -135,17 +135,31 @@ public final class SpacePanel extends JPanel {
         double x = world.cometX();
         double y = world.cometY();
         double radius = world.cometRadius();
-        double trailLength = world.trailLength();
         float diameter = (float) (radius * 2.0);
         float cx = (float) x;
         float cy = (float) y;
         target.setColor(new Color(0xFF, 0xFF, 0xCC));
         target.fillOval((int) (cx - radius), (int) (cy - radius), (int) diameter, (int) diameter);
-        float trailStartX = (float) (cx - trailLength);
-        float trailEndX = cx;
+        drawCometTrail(target, cx, cy, diameter, world.trailLength(), world.cometVX(), world.cometVY());
+    }
+
+    private void drawCometTrail(
+            Graphics2D target, float cx, float cy, float diameter, double trailLength, double vx, double vy) {
+        double speed = Math.sqrt(vx * vx + vy * vy);
+        if (speed < 0.001) {
+            return;
+        }
+        double dirX = -vx / speed;
+        double dirY = -vy / speed;
+        float flicker = 0.7f + 0.3f * (float) Math.sin(System.currentTimeMillis() * 0.01);
+        int alpha = (int) (0xAA * flicker);
+        float startX = (float) (cx + dirX * trailLength);
+        float startY = (float) (cy + dirY * trailLength);
         java.awt.GradientPaint trail = new java.awt.GradientPaint(
-                trailStartX, cy, new Color(0xFF, 0xAA, 0x44, 0x00), trailEndX, cy, new Color(0xFF, 0xDD, 0x88, 0xAA));
+                startX, startY, new Color(0xFF, 0xAA, 0x44, 0x00), cx, cy, new Color(0xFF, 0xDD, 0x88, alpha));
         target.setPaint(trail);
-        target.fillRect((int) trailStartX, (int) (cy - diameter / 4), (int) trailLength, (int) (diameter / 2));
+        target.setStroke(new java.awt.BasicStroke(diameter / 2));
+        target.drawLine((int) startX, (int) startY, (int) cx, (int) cy);
+        target.setStroke(new java.awt.BasicStroke(1));
     }
 }

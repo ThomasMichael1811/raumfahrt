@@ -131,6 +131,14 @@ public final class SimulationWorld {
         return cometY;
     }
 
+    public double cometVX() {
+        return cometVX;
+    }
+
+    public double cometVY() {
+        return cometVY;
+    }
+
     public double cometRadius() {
         return COMET_RADIUS;
     }
