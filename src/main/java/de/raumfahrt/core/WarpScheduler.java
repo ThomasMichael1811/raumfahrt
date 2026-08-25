@@ -6,8 +6,8 @@ public final class WarpScheduler {
 
     private static final double MIN_INTERVAL = 60.0;
     private static final double MAX_INTERVAL = 180.0;
-    private static final double MIN_DURATION = 10.0;
-    private static final double MAX_DURATION = 20.0;
+    private static final double MIN_DURATION = 1.0;
+    private static final double MAX_DURATION = 4.0;
 
     private final Random random;
     private final WarpState warpState;

@@ -25,7 +25,7 @@ class WarpSchedulerTest {
         scheduler.triggerNow();
 
         assertTrue(state.active());
-        assertTrue(state.remainingSeconds() >= 10.0 && state.remainingSeconds() <= 20.0);
+        assertTrue(state.remainingSeconds() >= 1.0 && state.remainingSeconds() <= 4.0);
     }
 
     @Test
