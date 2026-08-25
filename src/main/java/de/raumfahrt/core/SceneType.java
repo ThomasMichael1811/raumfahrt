@@ -5,5 +5,6 @@ public enum SceneType {
     SMALL_SUN_LEFT,
     NO_SUN,
     RED_SUN,
-    TWO_SUNS
+    TWO_SUNS,
+    COMET
 }

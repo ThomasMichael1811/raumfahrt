@@ -14,6 +14,7 @@ import de.raumfahrt.rendering.MonitorView;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
 import de.raumfahrt.rendering.SunRenderer;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -125,7 +126,26 @@ public final class SpacePanel extends JPanel {
                 Sun second = new Sun(world.width() * 0.85, sun.y() * 0.7, sun.radius(), sun.speedX());
                 sunRenderer.render(target, second, Sun.SunColor.YELLOW);
             }
+            case COMET -> renderComet(target);
             default -> sunRenderer.render(target, sun, Sun.SunColor.YELLOW);
         }
+    }
+
+    private void renderComet(Graphics2D target) {
+        double x = world.cometX();
+        double y = world.cometY();
+        double radius = world.cometRadius();
+        double trailLength = world.trailLength();
+        float diameter = (float) (radius * 2.0);
+        float cx = (float) x;
+        float cy = (float) y;
+        target.setColor(new Color(0xFF, 0xFF, 0xCC));
+        target.fillOval((int) (cx - radius), (int) (cy - radius), (int) diameter, (int) diameter);
+        float trailStartX = (float) (cx - trailLength);
+        float trailEndX = cx;
+        java.awt.GradientPaint trail = new java.awt.GradientPaint(
+                trailStartX, cy, new Color(0xFF, 0xAA, 0x44, 0x00), trailEndX, cy, new Color(0xFF, 0xDD, 0x88, 0xAA));
+        target.setPaint(trail);
+        target.fillRect((int) trailStartX, (int) (cy - diameter / 4), (int) trailLength, (int) (diameter / 2));
     }
 }

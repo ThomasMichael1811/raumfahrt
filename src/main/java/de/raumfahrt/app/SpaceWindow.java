@@ -86,6 +86,7 @@ public final class SpaceWindow extends JFrame {
         effectDispatcher.register(6, () -> world.setScene(SceneType.NO_SUN));
         effectDispatcher.register(7, () -> world.setScene(SceneType.RED_SUN));
         effectDispatcher.register(8, () -> world.setScene(SceneType.TWO_SUNS));
+        effectDispatcher.register(9, () -> world.setScene(SceneType.COMET));
     }
 
     @Override

@@ -5,6 +5,9 @@ import java.util.List;
 public final class SimulationWorld {
 
     private static final double CAMERA_SPEED = 120.0;
+    private static final double COMET_RADIUS = 10.0;
+    private static final double COMET_SPEED = 80.0;
+    private static final double TRAIL_LENGTH = 60.0;
 
     private final int width;
     private final int height;
@@ -15,6 +18,10 @@ public final class SimulationWorld {
     private double cameraX;
     private boolean paused;
     private SceneType scene;
+    private double cometX;
+    private double cometY;
+    private double cometVX;
+    private double cometVY;
 
     public SimulationWorld(int width, StarField starField, MeteorField meteorField, Sun sun) {
         this(width, starField, meteorField, sun, new WarpState());
@@ -28,6 +35,10 @@ public final class SimulationWorld {
         this.sun = sun;
         this.warpState = warpState;
         this.scene = SceneType.NORMAL;
+        this.cometX = -TRAIL_LENGTH;
+        this.cometY = this.height * 0.3;
+        this.cometVX = COMET_SPEED;
+        this.cometVY = COMET_SPEED * 0.3;
     }
 
     public void update(double deltaSeconds) {
@@ -38,6 +49,24 @@ public final class SimulationWorld {
         starField.update(deltaSeconds);
         meteorField.update(deltaSeconds);
         warpState.update(deltaSeconds);
+        if (scene == SceneType.COMET) {
+            updateComet(deltaSeconds);
+        }
+    }
+
+    private void updateComet(double deltaSeconds) {
+        cometX += cometVX * deltaSeconds;
+        cometY += cometVY * deltaSeconds;
+        if (cometX > width + TRAIL_LENGTH) {
+            cometX = -TRAIL_LENGTH;
+        }
+        if (cometY > height) {
+            cometY = height * 0.3;
+            cometVY = -cometVY;
+        } else if (cometY < 0) {
+            cometY = height * 0.3;
+            cometVY = -cometVY;
+        }
     }
 
     public void moveCamera(double direction, double deltaSeconds) {
@@ -86,6 +115,30 @@ public final class SimulationWorld {
         }
     }
 
+    public void switchScene() {
+        SceneType[] scenes = {
+            SceneType.SMALL_SUN_LEFT, SceneType.NO_SUN, SceneType.RED_SUN, SceneType.TWO_SUNS, SceneType.COMET
+        };
+        int next = (scene.ordinal() + 1) % scenes.length;
+        setScene(scenes[next]);
+    }
+
+    public double cometX() {
+        return cometX;
+    }
+
+    public double cometY() {
+        return cometY;
+    }
+
+    public double cometRadius() {
+        return COMET_RADIUS;
+    }
+
+    public double trailLength() {
+        return TRAIL_LENGTH;
+    }
+
     public List<Star> stars() {
         return starField.stars();
     }
@@ -100,12 +153,6 @@ public final class SimulationWorld {
 
     public List<Explosion> explosions() {
         return meteorField.explosions();
-    }
-
-    public void switchScene() {
-        SceneType[] scenes = {SceneType.SMALL_SUN_LEFT, SceneType.NO_SUN, SceneType.RED_SUN, SceneType.TWO_SUNS};
-        int next = (scene.ordinal() + 1) % scenes.length;
-        setScene(scenes[next]);
     }
 
     public WarpState warpState() {

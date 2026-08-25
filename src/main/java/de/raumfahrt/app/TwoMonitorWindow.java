@@ -99,6 +99,7 @@ public final class TwoMonitorWindow {
         bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
         bindAction(frame, "7", "sceneRedSun", () -> world.setScene(SceneType.RED_SUN));
         bindAction(frame, "8", "sceneTwoSuns", () -> world.setScene(SceneType.TWO_SUNS));
+        bindAction(frame, "9", "sceneComet", () -> world.setScene(SceneType.COMET));
         bindAction(frame, "released LEFT", "panStop", () -> panDirection = 0);
         bindAction(frame, "released RIGHT", "panStop", () -> panDirection = 0);
     }
