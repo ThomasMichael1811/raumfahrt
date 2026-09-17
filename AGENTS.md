@@ -40,3 +40,17 @@
 src/main/java/  — Quellcode
 src/test/java/  — Tests
 ```
+
+## Agent skills
+
+### Issue tracker
+
+Issues live on the kabai kanban board (Projekt "Raumfahrt", ID 28), accessed only via the kabai MCP tools. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary mapped onto kabai board columns. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
