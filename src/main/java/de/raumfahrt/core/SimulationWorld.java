@@ -111,6 +111,7 @@ public final class SimulationWorld {
             case SMALL_SUN_LEFT -> sun = new Sun(width * 0.1, height * 0.3, 10.0, 2.0);
             case RED_SUN -> sun = new Sun(sun.x(), sun.y(), sun.radius(), sun.speedX(), Sun.SunColor.RED);
             case TWO_SUNS -> sun = new Sun(width * 0.15, height * 0.3, 8.0, 1.5);
+            case NORMAL -> sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
             default -> sun = sun;
         }
     }
