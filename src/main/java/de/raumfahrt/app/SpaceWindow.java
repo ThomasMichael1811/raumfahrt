@@ -82,6 +82,7 @@ public final class SpaceWindow extends JFrame {
         effectDispatcher.register(2, () -> meteorField.spawnCrossingMeteor(true));
         effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
         effectDispatcher.register(0, warpScheduler::triggerNow);
+        effectDispatcher.register(4, () -> world.setScene(SceneType.NORMAL));
         effectDispatcher.register(5, () -> world.setScene(SceneType.SMALL_SUN_LEFT));
         effectDispatcher.register(6, () -> world.setScene(SceneType.NO_SUN));
         effectDispatcher.register(7, () -> world.setScene(SceneType.RED_SUN));

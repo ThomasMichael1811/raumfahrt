@@ -95,6 +95,7 @@ public final class TwoMonitorWindow {
         bindAction(frame, "RIGHT", "panRight", () -> panDirection = PAN_SPEED);
         bindAction(frame, "SPACE", "pause", world::togglePause);
         bindAction(frame, "0", "warp", warpScheduler::triggerNow);
+        bindAction(frame, "4", "sceneNormal", () -> world.setScene(SceneType.NORMAL));
         bindAction(frame, "5", "sceneSmallSun", () -> world.setScene(SceneType.SMALL_SUN_LEFT));
         bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
         bindAction(frame, "7", "sceneRedSun", () -> world.setScene(SceneType.RED_SUN));
