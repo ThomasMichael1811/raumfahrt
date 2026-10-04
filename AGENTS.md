@@ -20,6 +20,7 @@
 3. Nach **jedem** abgeschlossenen Ticket direkt in git committen.
 4. Zu **jedem** Ticket gehören, wenn möglich, Tests — damit ist sichergestellt, dass weiterhin alles funktioniert. Angestrebt wird eine **Testabdeckung > 80 %**.
 5. **Keine Tickets in `done` schieben — das macht immer der Mensch.** Tickets nach abgeschlossener Umsetzung nur bis `review` verschieben; der Mensch entscheidet über den Abschluss.
+6. Tickets, die per `implement`-Skill bearbeitet werden, müssen zwingend den Status `in progress` durchlaufen und vor dem Abschluss im Status `review` sein. Der Wechsel `in progress` → `review` ist erforderlich, bevor ein Ticket als erledigt gilt.
 
 ## Git
 - **Signing:** deaktiviert für dieses Repo (keine GPG-Signaturen)
@@ -27,7 +28,10 @@
 - **Commit-Stil:** Conventional Commits — Präfixe: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
 
 ## Qualität
-- **QS-Tooling & Schwellenwerte:** `docs/quality-setup.md` — `mvn verify` läuft mit Checkstyle, PMD, SpotBugs, JaCoCo (>80 % Coverage)
+- **QS-Tooling & Schwellenwerte:** `docs/quality-setup.md` — `mvn verify` läuft mit Checkstyle, PMD, SpotBugs, JaCoCo (>75 % Coverage)
+- **Wichtig:** Führen Sie niemals `mvn clean verify` direkt aus, da dadurch die JaCoCo-Executionsdaten gelöscht werden und der Coverage-Check fehlschlägt. Stattdessen:
+  - `mvn test` ausführen (generiert die Executionsdaten), anschließend `mvn verify` (ohne clean)
+  - Oder `mvn clean test verify` ausführen (insgesamt langsamer, aber gründlich)
 
 ## Code-Stil
 - Keine Kommentare im Code

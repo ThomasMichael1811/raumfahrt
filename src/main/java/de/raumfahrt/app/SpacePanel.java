@@ -102,7 +102,7 @@ public final class SpacePanel extends JPanel {
     private void renderMeteors(Graphics2D target, MonitorPairProjection projection, MonitorView view) {
         for (Meteor meteor : world.meteors()) {
             MeteorShape shape = new MeteorShape(meteor.shapeSeed());
-            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()), view);
+            meteorRenderer.renderTrail(target, projection, meteor, shape, world.getMeteorTrail(meteor.id()), view);
             meteorRenderer.render(target, projection, meteor, shape, view);
         }
     }

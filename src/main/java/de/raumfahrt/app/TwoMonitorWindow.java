@@ -95,6 +95,7 @@ public final class TwoMonitorWindow {
         bindAction(frame, "RIGHT", "panRight", () -> panDirection = PAN_SPEED);
         bindAction(frame, "SPACE", "pause", world::togglePause);
         bindAction(frame, "0", "warp", warpScheduler::triggerNow);
+        bindAnimatedGifAction(frame.getRootPane(), world::spawnAnimatedGifMeteor);
         bindAction(frame, "4", "sceneNormal", () -> world.setScene(SceneType.NORMAL));
         bindAction(frame, "5", "sceneSmallSun", () -> world.setScene(SceneType.SMALL_SUN_LEFT));
         bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
@@ -106,7 +107,14 @@ public final class TwoMonitorWindow {
     }
 
     private void bindAction(JFrame frame, String keyStroke, String name, Runnable action) {
-        JComponent root = frame.getRootPane();
+        bindAction(frame.getRootPane(), keyStroke, name, action);
+    }
+
+    static void bindAnimatedGifAction(JComponent root, Runnable action) {
+        bindAction(root, "2", "spawnAnimatedGifMeteor", action);
+    }
+
+    private static void bindAction(JComponent root, String keyStroke, String name, Runnable action) {
         root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(keyStroke), name);
         root.getActionMap().put(name, new AbstractAction() {
             @Override

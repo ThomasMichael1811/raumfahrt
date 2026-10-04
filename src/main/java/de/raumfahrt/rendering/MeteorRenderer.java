@@ -1,6 +1,7 @@
 package de.raumfahrt.rendering;
 
 import de.raumfahrt.core.Meteor;
+import de.raumfahrt.core.MeteorAppearance;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MeteorTrail;
 import de.raumfahrt.core.MonitorPairProjection;
@@ -8,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public final class MeteorRenderer {
 
@@ -17,6 +19,8 @@ public final class MeteorRenderer {
 
     static final int PIXEL_SIZE = 6;
     private static final float MAX_TRAIL_SPREAD = 24.0f;
+    private static final AnimatedGif ASTEROID_GIF = AnimatedGif.load("gif/asteroid1.gif");
+    private static final long GIF_START_TIME = System.currentTimeMillis();
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
         render(graphics, projection, meteor, shape, MonitorView.CENTERED);
@@ -24,6 +28,10 @@ public final class MeteorRenderer {
 
     public void render(
             Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape, MonitorView view) {
+        if (meteor.appearance() == MeteorAppearance.ANIMATED_GIF) {
+            renderAnimatedGif(graphics, projection, meteor, view);
+            return;
+        }
         AffineTransform original = graphics.getTransform();
         graphics.translate(
                 view.screenX(projection, meteor.x(), meteor.depth()), projection.screenY(meteor.y(), meteor.depth()));
@@ -34,6 +42,15 @@ public final class MeteorRenderer {
         graphics.setColor(METEOR_OUTLINE);
         graphics.drawPolygon(polygon);
         graphics.setTransform(original);
+    }
+
+    private void renderAnimatedGif(
+            Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MonitorView view) {
+        BufferedImage frame = ASTEROID_GIF.frameAt(System.currentTimeMillis() - GIF_START_TIME);
+        int diameter = Math.max(1, (int) Math.round(2.0 * projection.scale(meteor.size(), meteor.depth())));
+        int x = (int) Math.round(view.screenX(projection, meteor.x(), meteor.depth()) - diameter / 2.0);
+        int y = (int) Math.round(projection.screenY(meteor.y(), meteor.depth()) - diameter / 2.0);
+        graphics.drawImage(frame, x, y, diameter, diameter, null);
     }
 
     public void renderTrail(

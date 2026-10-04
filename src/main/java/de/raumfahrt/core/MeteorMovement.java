@@ -21,7 +21,8 @@ final class MeteorMovement {
                 meteor.behavior(),
                 meteor.zigzagAmplitude(),
                 meteor.zigzagFrequency(),
-                step.phase());
+                step.phase(),
+                meteor.appearance());
     }
 
     private BehaviorStep behaviorStep(Meteor meteor, double deltaSeconds) {

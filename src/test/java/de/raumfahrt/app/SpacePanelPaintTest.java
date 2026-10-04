@@ -58,7 +58,7 @@ class SpacePanelPaintTest {
         MeteorRenderer meteorRenderer = new MeteorRenderer();
         for (Meteor meteor : world.meteors()) {
             MeteorShape shape = new MeteorShape(meteor.shapeSeed());
-            meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()));
+            meteorRenderer.renderTrail(target, projection, meteor, shape, world.getMeteorTrail(meteor.id()));
             meteorRenderer.render(target, projection, meteor, shape);
         }
         ExplosionRenderer explosionRenderer = new ExplosionRenderer();

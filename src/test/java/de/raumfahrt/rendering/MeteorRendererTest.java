@@ -1,8 +1,10 @@
 package de.raumfahrt.rendering;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.raumfahrt.core.Meteor;
+import de.raumfahrt.core.MeteorAppearance;
 import de.raumfahrt.core.MeteorBehavior;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MeteorTrail;
@@ -17,7 +19,23 @@ class MeteorRendererTest {
     private static final int H = 100;
 
     private static Meteor meteorAt(double worldX, double worldY, double depth, double size) {
-        return new Meteor(1, worldX, worldY, depth, size, 0, 0, -1, 5, 0.0, 0.2, MeteorBehavior.STRAIGHT, 0, 0, 0);
+        return new Meteor(
+                1,
+                worldX,
+                worldY,
+                depth,
+                size,
+                0,
+                0,
+                -1,
+                5,
+                0.0,
+                0.2,
+                MeteorBehavior.STRAIGHT,
+                0,
+                0,
+                0,
+                MeteorAppearance.DEFAULT);
     }
 
     @Test
@@ -154,6 +172,21 @@ class MeteorRendererTest {
         assertTrue(rockAtPosition(image, W / 2, H / 2));
     }
 
+    @Test
+    void animatedGifWirdAnProjizierterPositionGezeichnet() {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new SpaceRenderer().render(graphics, W, H);
+        Meteor meteor = new Meteor(
+                1, 0, 0, 500, 30, 0, 0, -120, 5, 0, 0, MeteorBehavior.STRAIGHT, 0, 0, 0, MeteorAppearance.ANIMATED_GIF);
+
+        new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
+        graphics.dispose();
+
+        assertTrue(countNonBackgroundPixels(image) > 0);
+        assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
+    }
+
     private int coloredRowsAt(BufferedImage image, int x) {
         int bg = image.getRGB(0, 0);
         int count = 0;
@@ -191,6 +224,19 @@ class MeteorRendererTest {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 if (image.getRGB(x, y) == MeteorRenderer.METEOR_COLOR.getRGB()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private int countNonBackgroundPixels(BufferedImage image) {
+        int background = image.getRGB(0, 0);
+        int count = 0;
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (image.getRGB(x, y) != background) {
                     count++;
                 }
             }

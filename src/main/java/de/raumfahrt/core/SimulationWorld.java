@@ -1,6 +1,7 @@
 package de.raumfahrt.core;
 
 import java.util.List;
+import java.util.Random;
 
 public final class SimulationWorld {
 
@@ -13,6 +14,7 @@ public final class SimulationWorld {
     private final int height;
     private final StarField starField;
     private final MeteorField meteorField;
+    private final AsteroidField asteroidField;
     private final WarpState warpState;
     private Sun sun;
     private double cameraX;
@@ -32,6 +34,7 @@ public final class SimulationWorld {
         this.height = sun.y() > 0 ? (int) (sun.y() * 2) : 600;
         this.starField = starField;
         this.meteorField = meteorField;
+        this.asteroidField = new AsteroidField(width, 2, new AsteroidSpawner(new Random(), width, height));
         this.sun = sun;
         this.warpState = warpState;
         this.scene = SceneType.NORMAL;
@@ -48,6 +51,7 @@ public final class SimulationWorld {
         sun = sun.moved(deltaSeconds, width);
         starField.update(deltaSeconds);
         meteorField.update(deltaSeconds);
+        asteroidField.update(deltaSeconds);
         warpState.update(deltaSeconds);
         if (scene == SceneType.COMET) {
             updateComet(deltaSeconds);
@@ -156,7 +160,19 @@ public final class SimulationWorld {
         return meteorField.meteors();
     }
 
-    public MeteorTrail trailFor(int meteorId) {
+    public void spawnAnimatedGifMeteor() {
+        meteorField.spawnAnimatedGifMeteor();
+    }
+
+    public List<Asteroid> asteroids() {
+        return asteroidField.asteroids();
+    }
+
+    public AsteroidField.AsteroidTrail trailFor(int asteroidId) {
+        return asteroidField.getTrail(asteroidId);
+    }
+
+    public MeteorTrail getMeteorTrail(int meteorId) {
         return meteorField.trailFor(meteorId);
     }
 

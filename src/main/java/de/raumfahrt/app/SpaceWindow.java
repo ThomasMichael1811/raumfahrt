@@ -79,7 +79,7 @@ public final class SpaceWindow extends JFrame {
             SimulationWorld world,
             WarpScheduler warpScheduler) {
         effectDispatcher.register(1, meteorField::spawnAimedMeteor);
-        effectDispatcher.register(2, () -> meteorField.spawnCrossingMeteor(true));
+        effectDispatcher.register(2, meteorField::spawnAnimatedGifMeteor);
         effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
         effectDispatcher.register(0, warpScheduler::triggerNow);
         effectDispatcher.register(4, () -> world.setScene(SceneType.NORMAL));

@@ -72,7 +72,23 @@ class MeteorFieldTest {
 
     @Test
     void beschleunigenderMeteorWirdSchnellerJeNaeherErKommt() {
-        Meteor initial = new Meteor(1, 0, 0, 400, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ACCELERATING, 0, 0, 0);
+        Meteor initial = new Meteor(
+                1,
+                0,
+                0,
+                400,
+                15,
+                0,
+                0,
+                -120,
+                5,
+                0.0,
+                0.2,
+                MeteorBehavior.ACCELERATING,
+                0,
+                0,
+                0,
+                MeteorAppearance.DEFAULT);
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(10L), WIDTH, HEIGHT, 1.0, 1.0));
         double step = 2.0;
 
@@ -87,7 +103,23 @@ class MeteorFieldTest {
 
     @Test
     void zigzagMeteorOszilliertLateral() {
-        Meteor initial = new Meteor(1, 0, 0, 600, 15, 0, 0, -120, 5, 0.0, 0.2, MeteorBehavior.ZIGZAG, 50.0, 2.0, 1.0);
+        Meteor initial = new Meteor(
+                1,
+                0,
+                0,
+                600,
+                15,
+                0,
+                0,
+                -120,
+                5,
+                0.0,
+                0.2,
+                MeteorBehavior.ZIGZAG,
+                50.0,
+                2.0,
+                1.0,
+                MeteorAppearance.DEFAULT);
         MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(12L), WIDTH, HEIGHT, 1.0, 1.0));
         Meteor moved = MOVEMENT.move(initial, 1.0);
 
@@ -150,5 +182,20 @@ class MeteorFieldTest {
 
         assertTrue(field.meteors().isEmpty());
         assertEquals(1, field.explosions().size());
+    }
+
+    @Test
+    void animatedGifMeteorKannGezieltAusgeloestUndBewegtWerden() {
+        MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(41L), WIDTH, HEIGHT, 100.0, 100.0));
+
+        field.spawnAnimatedGifMeteor();
+        Meteor initial = field.meteors().get(0);
+        field.update(0.5);
+        Meteor moved = field.meteors().get(0);
+
+        assertEquals(MeteorAppearance.ANIMATED_GIF, initial.appearance());
+        assertTrue(moved.x() > initial.x());
+        assertTrue(moved.depth() < initial.depth());
+        assertEquals(MeteorAppearance.ANIMATED_GIF, moved.appearance());
     }
 }

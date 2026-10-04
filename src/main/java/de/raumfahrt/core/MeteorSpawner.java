@@ -82,7 +82,8 @@ public final class MeteorSpawner {
                 zigzag.behavior(),
                 zigzag.amplitude(),
                 zigzag.frequency(),
-                0.0);
+                0.0,
+                MeteorAppearance.DEFAULT);
     }
 
     public Meteor createAimedMeteor() {
@@ -102,7 +103,8 @@ public final class MeteorSpawner {
                 MeteorBehavior.STRAIGHT,
                 0.0,
                 0.0,
-                0.0);
+                0.0,
+                MeteorAppearance.DEFAULT);
     }
 
     public Meteor createCrossingMeteor(boolean fromLeft) {
@@ -125,7 +127,28 @@ public final class MeteorSpawner {
                 MeteorBehavior.STRAIGHT,
                 0.0,
                 0.0,
-                0.0);
+                0.0,
+                MeteorAppearance.DEFAULT);
+    }
+
+    public Meteor createAnimatedGifMeteor() {
+        return new Meteor(
+                nextId++,
+                -width * 0.75,
+                0.0,
+                EFFECT_DEPTH,
+                MIN_SIZE + random.nextDouble() * SIZE_RANGE,
+                width / 2.0,
+                0.0,
+                -SPEED_Z,
+                random.nextInt(),
+                0.0,
+                0.0,
+                MeteorBehavior.STRAIGHT,
+                0.0,
+                0.0,
+                0.0,
+                MeteorAppearance.ANIMATED_GIF);
     }
 
     private double randomScreenOffset(int extentPx) {

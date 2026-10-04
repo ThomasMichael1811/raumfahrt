@@ -66,7 +66,7 @@ class SpacePanelPaintStressTest {
             new StarFieldRenderer().render(target, world.stars(), WIDTH, HEIGHT);
             for (Meteor meteor : world.meteors()) {
                 MeteorShape shape = new MeteorShape(meteor.shapeSeed());
-                meteorRenderer.renderTrail(target, projection, meteor, shape, world.trailFor(meteor.id()));
+                meteorRenderer.renderTrail(target, projection, meteor, shape, world.getMeteorTrail(meteor.id()));
                 meteorRenderer.render(target, projection, meteor, shape);
             }
             for (Explosion explosion : world.explosions()) {

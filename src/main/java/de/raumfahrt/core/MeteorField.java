@@ -55,6 +55,10 @@ public final class MeteorField {
         }
     }
 
+    public void spawnAnimatedGifMeteor() {
+        meteors.add(spawner.createAnimatedGifMeteor());
+    }
+
     public void update(double deltaSeconds) {
         spawnMeteors(deltaSeconds);
         List<Meteor> survivors = moveMeteors(deltaSeconds);

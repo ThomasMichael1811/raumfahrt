@@ -1,10 +1,6 @@
 package de.raumfahrt.core;
 
-public record MonitorEdge(
-    String from,
-    String to,
-    double gapCm
-) {
+public record MonitorEdge(String from, String to, double gapCm) {
     public MonitorEdge {
         if (from == null || from.isEmpty()) {
             throw new IllegalArgumentException("Quell-Monitor-ID darf nicht null oder leer sein");

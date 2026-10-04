@@ -171,4 +171,17 @@ class MeteorSpawnerTest {
         assertTrue(meteor.speedX() < 0);
         assertTrue(meteor.speedZ() < 0);
     }
+
+    @Test
+    void animatedGifMeteorFliegtVonLinksDurchBeideMonitore() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(37L), WIDTH, HEIGHT);
+
+        Meteor meteor = spawner.createAnimatedGifMeteor();
+
+        assertTrue(meteor.x() < 0);
+        assertTrue(meteor.speedX() > 0);
+        assertTrue(meteor.speedZ() < 0);
+        assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
+        assertEquals(0.0, meteor.rotationSpeed());
+    }
 }
