@@ -11,6 +11,7 @@ import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
 import de.raumfahrt.core.WarpScheduler;
+import de.raumfahrt.core.WarpTransitionController;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.SpaceRenderer;
@@ -51,7 +52,10 @@ public final class SpaceWindow extends JFrame {
         bindEffectKeys(wo.effectDispatcher);
         setVisible(true);
         gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
-            wo.warpScheduler.update(deltaSeconds);
+            if (!wo.world.isPaused()) {
+                wo.controller.update(deltaSeconds);
+                wo.warpScheduler.update(deltaSeconds);
+            }
             wo.world.update(deltaSeconds);
             spacePanel.repaint();
         });
@@ -64,29 +68,31 @@ public final class SpaceWindow extends JFrame {
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld world = new SimulationWorld(width, starField, meteorField, sun);
-        WarpScheduler warpScheduler = new WarpScheduler(new Random(), world.warpState(), world::switchScene);
+        WarpTransitionController controller =
+                new WarpTransitionController(world.warpState(), world::setScene, world::scene, world::isPaused);
+        WarpScheduler warpScheduler = new WarpScheduler(new Random(), controller, world::nextScene);
         EffectDispatcher effectDispatcher = new EffectDispatcher();
-        registerEffects(effectDispatcher, meteorField, world, warpScheduler);
-        return new WorldObjects(world, warpScheduler, effectDispatcher);
+        registerEffects(effectDispatcher, meteorField, controller);
+        return new WorldObjects(world, controller, warpScheduler, effectDispatcher);
     }
 
     private record WorldObjects(
-            SimulationWorld world, WarpScheduler warpScheduler, EffectDispatcher effectDispatcher) {}
+            SimulationWorld world,
+            WarpTransitionController controller,
+            WarpScheduler warpScheduler,
+            EffectDispatcher effectDispatcher) {}
 
     private void registerEffects(
-            EffectDispatcher effectDispatcher,
-            MeteorField meteorField,
-            SimulationWorld world,
-            WarpScheduler warpScheduler) {
+            EffectDispatcher effectDispatcher, MeteorField meteorField, WarpTransitionController controller) {
         effectDispatcher.register(1, meteorField::spawnAimedMeteor);
         registerGifEffects(effectDispatcher, meteorField);
-        effectDispatcher.register(0, warpScheduler::triggerNow);
-        effectDispatcher.register(4, () -> world.setScene(SceneType.NORMAL));
-        effectDispatcher.register(5, () -> world.setScene(SceneType.SMALL_SUN_LEFT));
-        effectDispatcher.register(6, () -> world.setScene(SceneType.NO_SUN));
-        effectDispatcher.register(7, () -> world.setScene(SceneType.RED_SUN));
-        effectDispatcher.register(8, () -> world.setScene(SceneType.TWO_SUNS));
-        effectDispatcher.register(9, () -> world.setScene(SceneType.COMET));
+        effectDispatcher.register(0, controller::startIndependentWarp);
+        effectDispatcher.register(4, () -> controller.startSceneTransition(SceneType.NORMAL));
+        effectDispatcher.register(5, () -> controller.startSceneTransition(SceneType.SMALL_SUN_LEFT));
+        effectDispatcher.register(6, () -> controller.startSceneTransition(SceneType.NO_SUN));
+        effectDispatcher.register(7, () -> controller.startSceneTransition(SceneType.RED_SUN));
+        effectDispatcher.register(8, () -> controller.startSceneTransition(SceneType.TWO_SUNS));
+        effectDispatcher.register(9, () -> controller.startSceneTransition(SceneType.COMET));
     }
 
     static void registerGifEffects(EffectDispatcher effectDispatcher, MeteorField meteorField) {

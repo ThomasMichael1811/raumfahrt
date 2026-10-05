@@ -52,7 +52,6 @@ public final class SimulationWorld {
         starField.update(deltaSeconds);
         meteorField.update(deltaSeconds);
         asteroidField.update(deltaSeconds);
-        warpState.update(deltaSeconds);
         if (scene == SceneType.COMET) {
             updateComet(deltaSeconds);
         }
@@ -120,12 +119,12 @@ public final class SimulationWorld {
         }
     }
 
-    public void switchScene() {
+    public SceneType nextScene() {
         SceneType[] scenes = {
             SceneType.SMALL_SUN_LEFT, SceneType.NO_SUN, SceneType.RED_SUN, SceneType.TWO_SUNS, SceneType.COMET
         };
         int next = (scene.ordinal() + 1) % scenes.length;
-        setScene(scenes[next]);
+        return scenes[next];
     }
 
     public double cometX() {

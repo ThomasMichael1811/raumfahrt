@@ -4,90 +4,76 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 class WarpSchedulerTest {
 
-    @Test
-    void schedulerStartsInactive() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
+    private final WarpState state = new WarpState();
+    private final List<SceneType> switches = new ArrayList<>();
+    private final WarpTransitionController controller =
+            new WarpTransitionController(state, switches::add, () -> SceneType.NORMAL);
 
-        assertFalse(state.active());
+    @Test
+    void schedulerStartetInaktiv() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
+
+        assertFalse(controller.active());
     }
 
     @Test
-    void triggerNowActivatesWarp() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
-
-        scheduler.triggerNow();
-
-        assertTrue(state.active());
-        assertTrue(state.remainingSeconds() >= 1.0 && state.remainingSeconds() <= 4.0);
-    }
-
-    @Test
-    void schedulerTriggersAfterInterval() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
+    void schedulerLoestNachIntervallAutomatischenWechselAus() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
 
         scheduler.update(180.0);
 
-        assertTrue(state.active());
+        assertTrue(controller.active());
+        assertEquals(SceneType.COMET, controller.targetScene());
     }
 
     @Test
-    void schedulerDoesNotTriggerBeforeInterval() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
+    void schedulerLoestVorIntervallNichtAus() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
 
         scheduler.update(30.0);
 
-        assertFalse(state.active());
+        assertFalse(controller.active());
     }
 
     @Test
-    void schedulerResetsAfterWarpEnds() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
+    void automatischerWechselWechseltSzeneInDerMitte() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
+        scheduler.update(180.0);
 
-        scheduler.triggerNow();
-        assertTrue(state.active());
+        controller.update(0.9);
+        assertTrue(switches.isEmpty());
+        controller.update(0.2);
 
-        state.update(25.0);
-        assertFalse(state.active());
+        assertEquals(List.of(SceneType.COMET), switches);
+    }
+
+    @Test
+    void schedulerUnterdruecktTriggerWaehrendAktiverTransition() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
+        controller.startSceneTransition(SceneType.RED_SUN);
 
         scheduler.update(200.0);
-        assertTrue(state.active());
+
+        assertEquals(SceneType.RED_SUN, controller.targetScene());
+        assertTrue(switches.isEmpty());
     }
 
     @Test
-    void schedulerDoesNotTriggerWhileWarpActive() {
-        WarpState state = new WarpState();
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> {});
-
-        scheduler.triggerNow();
-        double remaining = state.remainingSeconds();
-
-        scheduler.update(10.0);
-
-        assertTrue(state.active());
-        assertEquals(remaining, state.remainingSeconds());
-    }
-
-    @Test
-    void onWarpEndCallbackIsCalled() {
-        WarpState state = new WarpState();
-        boolean[] callbackCalled = {false};
-        WarpScheduler scheduler = new WarpScheduler(new Random(1L), state, () -> callbackCalled[0] = true);
-
-        scheduler.triggerNow();
+    void schedulerPlantNachTransitionNeu() {
+        WarpScheduler scheduler = new WarpScheduler(new Random(1L), controller, () -> SceneType.COMET);
+        controller.startSceneTransition(SceneType.RED_SUN);
         scheduler.update(1.0);
-        state.update(25.0);
+        controller.update(2.0);
         scheduler.update(1.0);
 
-        assertTrue(callbackCalled[0]);
+        assertFalse(controller.active());
+        assertTrue(scheduler.timeToNextWarp() >= 60.0 && scheduler.timeToNextWarp() <= 180.0);
     }
 }

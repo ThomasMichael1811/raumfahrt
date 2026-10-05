@@ -10,6 +10,7 @@ import de.raumfahrt.core.StarField;
 import de.raumfahrt.core.StarGenerator;
 import de.raumfahrt.core.Sun;
 import de.raumfahrt.core.WarpScheduler;
+import de.raumfahrt.core.WarpTransitionController;
 import de.raumfahrt.rendering.CabinFrameRenderer;
 import de.raumfahrt.rendering.MeteorRenderer;
 import de.raumfahrt.rendering.MonitorView;
@@ -35,11 +36,30 @@ public final class TwoMonitorWindow {
     private final transient GameLoop gameLoop;
     private final transient JFrame windowOne;
     private final transient JFrame windowTwo;
+    private final transient WarpTransitionController controller;
     private final transient WarpScheduler warpScheduler;
     private transient int panDirection;
 
     public TwoMonitorWindow() {
         GraphicsDevice[] devices = sortedDevices();
+        Simulation simulation = createSimulation(devices);
+        world = simulation.world();
+        controller = simulation.controller();
+        warpScheduler = simulation.warpScheduler();
+        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, simulation.focalPx());
+        windowTwo = createWindow(
+                devices.length > 1 ? devices[1] : devices[0],
+                "Raumfahrt rechts",
+                MonitorView.RIGHT,
+                simulation.focalPx());
+        bindInput(windowOne);
+        bindInput(windowTwo);
+        setVisible();
+        gameLoop = new GameLoop(UPDATES_PER_SECOND, this::step);
+        gameLoop.start();
+    }
+
+    private Simulation createSimulation(GraphicsDevice[] devices) {
         Rectangle primary = devices[0].getDefaultConfiguration().getBounds();
         int width = primary.width;
         int height = primary.height;
@@ -48,23 +68,29 @@ public final class TwoMonitorWindow {
         double focalPx = MonitorConfig.load().calibration().focalPx(width);
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
-        world = new SimulationWorld(width, starField, meteorField, sun);
-        warpScheduler = new WarpScheduler(new Random(), world.warpState(), world::switchScene);
-        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, focalPx);
-        windowTwo = createWindow(
-                devices.length > 1 ? devices[1] : devices[0], "Raumfahrt rechts", MonitorView.RIGHT, focalPx);
-        bindInput(windowOne);
-        bindInput(windowTwo);
-        setVisible();
-        gameLoop = new GameLoop(UPDATES_PER_SECOND, deltaSeconds -> {
-            warpScheduler.update(deltaSeconds);
-            world.moveCamera(panDirection, deltaSeconds);
-            world.update(deltaSeconds);
-            windowOne.getContentPane().repaint();
-            windowTwo.getContentPane().repaint();
-        });
-        gameLoop.start();
+        SimulationWorld simulationWorld = new SimulationWorld(width, starField, meteorField, sun);
+        WarpTransitionController transitionController = new WarpTransitionController(
+                simulationWorld.warpState(),
+                simulationWorld::setScene,
+                simulationWorld::scene,
+                simulationWorld::isPaused);
+        WarpScheduler scheduler = new WarpScheduler(new Random(), transitionController, simulationWorld::nextScene);
+        return new Simulation(simulationWorld, transitionController, scheduler, focalPx);
     }
+
+    private void step(double deltaSeconds) {
+        if (!world.isPaused()) {
+            controller.update(deltaSeconds);
+            warpScheduler.update(deltaSeconds);
+        }
+        world.moveCamera(panDirection, deltaSeconds);
+        world.update(deltaSeconds);
+        windowOne.getContentPane().repaint();
+        windowTwo.getContentPane().repaint();
+    }
+
+    private record Simulation(
+            SimulationWorld world, WarpTransitionController controller, WarpScheduler warpScheduler, double focalPx) {}
 
     private JFrame createWindow(GraphicsDevice device, String title, MonitorView view, double focalPx) {
         Rectangle bounds = device.getDefaultConfiguration().getBounds();
@@ -94,15 +120,15 @@ public final class TwoMonitorWindow {
         bindAction(frame, "LEFT", "panLeft", () -> panDirection = -PAN_SPEED);
         bindAction(frame, "RIGHT", "panRight", () -> panDirection = PAN_SPEED);
         bindAction(frame, "SPACE", "pause", world::togglePause);
-        bindAction(frame, "0", "warp", warpScheduler::triggerNow);
+        bindAction(frame, "0", "warp", controller::startIndependentWarp);
         bindAnimatedGifAction(frame.getRootPane(), world::spawnAnimatedGifMeteor);
         bindAnimatedGif2Action(frame.getRootPane(), world::spawnAnimatedGif2Meteor);
-        bindAction(frame, "4", "sceneNormal", () -> world.setScene(SceneType.NORMAL));
-        bindAction(frame, "5", "sceneSmallSun", () -> world.setScene(SceneType.SMALL_SUN_LEFT));
-        bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
-        bindAction(frame, "7", "sceneRedSun", () -> world.setScene(SceneType.RED_SUN));
-        bindAction(frame, "8", "sceneTwoSuns", () -> world.setScene(SceneType.TWO_SUNS));
-        bindAction(frame, "9", "sceneComet", () -> world.setScene(SceneType.COMET));
+        bindAction(frame, "4", "sceneNormal", () -> controller.startSceneTransition(SceneType.NORMAL));
+        bindAction(frame, "5", "sceneSmallSun", () -> controller.startSceneTransition(SceneType.SMALL_SUN_LEFT));
+        bindAction(frame, "6", "sceneNoSun", () -> controller.startSceneTransition(SceneType.NO_SUN));
+        bindAction(frame, "7", "sceneRedSun", () -> controller.startSceneTransition(SceneType.RED_SUN));
+        bindAction(frame, "8", "sceneTwoSuns", () -> controller.startSceneTransition(SceneType.TWO_SUNS));
+        bindAction(frame, "9", "sceneComet", () -> controller.startSceneTransition(SceneType.COMET));
         bindAction(frame, "released LEFT", "panStop", () -> panDirection = 0);
         bindAction(frame, "released RIGHT", "panStop", () -> panDirection = 0);
     }

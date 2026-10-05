@@ -61,4 +61,16 @@ class WarpStateTest {
 
         assertFalse(state.active());
     }
+
+    @Test
+    void progressSteigtVonNullBisEins() {
+        WarpState state = new WarpState();
+        state.activate(2.0, 500.0);
+
+        assertEquals(0.0, state.progress(), 1e-9);
+        state.update(1.0);
+        assertEquals(0.5, state.progress(), 1e-9);
+        state.update(1.0);
+        assertEquals(0.0, state.progress(), 1e-9);
+    }
 }

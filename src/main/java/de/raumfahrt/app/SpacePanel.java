@@ -14,6 +14,7 @@ import de.raumfahrt.rendering.MonitorView;
 import de.raumfahrt.rendering.SpaceRenderer;
 import de.raumfahrt.rendering.StarFieldRenderer;
 import de.raumfahrt.rendering.SunRenderer;
+import de.raumfahrt.rendering.WarpEffectRenderer;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -31,6 +32,7 @@ public final class SpacePanel extends JPanel {
     private final transient CabinFrameRenderer frameRenderer;
     private final transient ExplosionRenderer explosionRenderer = new ExplosionRenderer();
     private final transient SunRenderer sunRenderer = new SunRenderer();
+    private final transient WarpEffectRenderer warpRenderer = new WarpEffectRenderer();
     private final transient SimulationWorld world;
     private final transient MonitorView view;
     private transient double focalPx = DEFAULT_FOCAL_PX;
@@ -80,23 +82,33 @@ public final class SpacePanel extends JPanel {
             offscreen = new BufferedImage(Math.max(width, 1), Math.max(height, 1), BufferedImage.TYPE_INT_RGB);
         }
         Graphics2D target = offscreen.createGraphics();
-        MonitorPairProjection projection =
-                new MonitorPairProjection(offscreen.getWidth(), offscreen.getHeight(), GAP_PX, focalPx);
-        renderer.render(target, offscreen.getWidth(), offscreen.getHeight());
-        target.translate(-world.cameraX(), 0);
-        boolean warpActive = world.warpState().active();
-        if (!warpActive) {
-            renderSun(target);
+        int panelWidth = offscreen.getWidth();
+        int panelHeight = offscreen.getHeight();
+        renderer.render(target, panelWidth, panelHeight);
+        if (world.warpState().active()) {
+            warpRenderer.render(
+                    target,
+                    panelWidth / 2.0,
+                    panelHeight / 2.0,
+                    panelWidth,
+                    panelHeight,
+                    world.warpState().progress());
+        } else {
+            renderScene(target, new MonitorPairProjection(panelWidth, panelHeight, GAP_PX, focalPx), view);
         }
-        starFieldRenderer.render(target, world.stars(), offscreen.getWidth(), offscreen.getHeight(), world.warpState());
-        if (!warpActive) {
-            renderMeteors(target, projection, view);
-            renderExplosions(target, projection, view);
-        }
-        target.translate(world.cameraX(), 0);
-        frameRenderer.render(target, offscreen.getWidth(), offscreen.getHeight());
+        frameRenderer.render(target, panelWidth, panelHeight);
         target.dispose();
         graphics.drawImage(offscreen, 0, 0, null);
+    }
+
+    private void renderScene(Graphics2D target, MonitorPairProjection projection, MonitorView monitorView) {
+        target.translate(-world.cameraX(), 0);
+        renderSun(target);
+        starFieldRenderer.render(
+                target, world.stars(), projection.monitorWidthPx(), projection.monitorHeightPx(), world.warpState());
+        renderMeteors(target, projection, monitorView);
+        renderExplosions(target, projection, monitorView);
+        target.translate(world.cameraX(), 0);
     }
 
     private void renderMeteors(Graphics2D target, MonitorPairProjection projection, MonitorView view) {
