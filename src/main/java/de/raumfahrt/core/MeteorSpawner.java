@@ -24,6 +24,8 @@ public final class MeteorSpawner {
     private static final double ZIGZAG_MIN_FREQUENCY = 0.5;
     private static final double ZIGZAG_FREQUENCY_RANGE = 2.0;
     private static final double EFFECT_DEPTH = 600.0;
+    private static final double ANIMATED_GIF_SPEED = 45.0;
+    private static final double ANIMATED_GIF_START_X_FACTOR = -0.1;
     private static final double SPAWN_MARGIN_PX = 60.0;
 
     private final Random random;
@@ -134,11 +136,11 @@ public final class MeteorSpawner {
     public Meteor createAnimatedGifMeteor() {
         return new Meteor(
                 nextId++,
-                -width * 0.75,
+                width * ANIMATED_GIF_START_X_FACTOR,
                 0.0,
                 EFFECT_DEPTH,
                 MIN_SIZE + random.nextDouble() * SIZE_RANGE,
-                width / 2.0,
+                ANIMATED_GIF_SPEED,
                 0.0,
                 -SPEED_Z,
                 random.nextInt(),

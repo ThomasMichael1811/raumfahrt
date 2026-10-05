@@ -180,6 +180,8 @@ class MeteorSpawnerTest {
 
         assertTrue(meteor.x() < 0);
         assertTrue(meteor.speedX() > 0);
+        assertEquals(-WIDTH * 0.1, meteor.x(), 1e-9);
+        assertEquals(45.0, meteor.speedX(), 1e-9);
         assertTrue(meteor.speedZ() < 0);
         assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
         assertEquals(0.0, meteor.rotationSpeed());
