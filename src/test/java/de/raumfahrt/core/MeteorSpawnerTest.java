@@ -197,6 +197,7 @@ class MeteorSpawnerTest {
         assertTrue(meteor.speedX() > 0);
         assertEquals(-WIDTH * 0.1, meteor.x(), 1e-9);
         assertEquals(45.0, meteor.speedX(), 1e-9);
+        assertEquals(0.0, meteor.speedY(), 1e-9);
         assertTrue(meteor.speedZ() < 0);
         assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
         assertEquals(0.0, meteor.rotationSpeed());
@@ -209,7 +210,24 @@ class MeteorSpawnerTest {
         Meteor meteor = spawner.createAnimatedGif2Meteor();
 
         assertEquals(MeteorAppearance.ANIMATED_GIF_2, meteor.appearance());
-        assertEquals(-WIDTH * 0.1, meteor.x(), 1e-9);
-        assertEquals(45.0, meteor.speedX(), 1e-9);
+        assertTrue(meteor.x() > 0);
+        assertEquals(WIDTH * 0.1, meteor.x(), 1e-9);
+        assertEquals(-72.0, meteor.speedX(), 1e-9);
+        assertEquals(-18.0, meteor.speedY(), 1e-9);
+    }
+
+    @Test
+    void animatedGifAsteroidenVerwendenUnabhaengigeFlugprofile() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(43L), WIDTH, HEIGHT);
+
+        Meteor first = spawner.createAnimatedGifMeteor();
+        Meteor second = spawner.createAnimatedGif2Meteor();
+
+        assertTrue(first.size() < second.size());
+        assertTrue(first.speedX() > 0);
+        assertTrue(second.speedX() < 0);
+        assertTrue(first.speedX() != second.speedX());
+        assertTrue(first.speedY() != second.speedY());
+        assertTrue(first.depth() != second.depth());
     }
 }

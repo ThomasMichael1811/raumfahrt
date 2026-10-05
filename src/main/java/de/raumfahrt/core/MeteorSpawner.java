@@ -24,9 +24,11 @@ public final class MeteorSpawner {
     private static final double ZIGZAG_MIN_FREQUENCY = 0.5;
     private static final double ZIGZAG_FREQUENCY_RANGE = 2.0;
     private static final double EFFECT_DEPTH = 600.0;
-    private static final double ANIMATED_GIF_SPEED = 45.0;
-    private static final double ANIMATED_GIF_START_X_FACTOR = -0.1;
     private static final double SPAWN_MARGIN_PX = 60.0;
+    private static final AnimatedGifProfile ASTEROID_1_PROFILE =
+            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF, -0.1, 0.0, 500.0, 20.0, 10.0, 45.0, 0.0, -100.0);
+    private static final AnimatedGifProfile ASTEROID_2_PROFILE =
+            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF_2, 0.1, 0.12, 650.0, 42.0, 10.0, -72.0, -18.0, -140.0);
 
     private final Random random;
     private final int width;
@@ -134,23 +136,23 @@ public final class MeteorSpawner {
     }
 
     public Meteor createAnimatedGifMeteor() {
-        return createAnimatedGifMeteor(MeteorAppearance.ANIMATED_GIF);
+        return createAnimatedGifMeteor(ASTEROID_1_PROFILE);
     }
 
     public Meteor createAnimatedGif2Meteor() {
-        return createAnimatedGifMeteor(MeteorAppearance.ANIMATED_GIF_2);
+        return createAnimatedGifMeteor(ASTEROID_2_PROFILE);
     }
 
-    private Meteor createAnimatedGifMeteor(MeteorAppearance appearance) {
+    private Meteor createAnimatedGifMeteor(AnimatedGifProfile profile) {
         return new Meteor(
                 nextId++,
-                width * ANIMATED_GIF_START_X_FACTOR,
-                0.0,
-                EFFECT_DEPTH,
-                MIN_SIZE + random.nextDouble() * SIZE_RANGE,
-                ANIMATED_GIF_SPEED,
-                0.0,
-                -SPEED_Z,
+                width * profile.startXFactor(),
+                height * profile.startYFactor(),
+                profile.depth(),
+                profile.minSize() + random.nextDouble() * profile.sizeRange(),
+                profile.speedX(),
+                profile.speedY(),
+                profile.speedZ(),
                 random.nextInt(),
                 0.0,
                 0.0,
@@ -158,7 +160,7 @@ public final class MeteorSpawner {
                 0.0,
                 0.0,
                 0.0,
-                appearance);
+                profile.appearance());
     }
 
     private double randomScreenOffset(int extentPx) {
@@ -220,4 +222,15 @@ public final class MeteorSpawner {
     public double nextSpawnInterval() {
         return minInterval + random.nextDouble() * (maxInterval - minInterval);
     }
+
+    private record AnimatedGifProfile(
+            MeteorAppearance appearance,
+            double startXFactor,
+            double startYFactor,
+            double depth,
+            double minSize,
+            double sizeRange,
+            double speedX,
+            double speedY,
+            double speedZ) {}
 }

@@ -3,6 +3,7 @@ package de.raumfahrt.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.raumfahrt.rendering.AnimatedGif;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 
@@ -206,5 +207,60 @@ class MeteorFieldTest {
         field.spawnAnimatedGif2Meteor();
 
         assertEquals(MeteorAppearance.ANIMATED_GIF_2, field.meteors().get(0).appearance());
+    }
+
+    @Test
+    void beideAnimatedGifAsteroidenBewegenSichUnabhaengig() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(43L), WIDTH, HEIGHT, 100.0, 100.0);
+        MeteorField field = new MeteorField(WIDTH, 2, spawner);
+
+        field.spawnAnimatedGifMeteor();
+        field.spawnAnimatedGif2Meteor();
+        Meteor first = field.meteors().get(0);
+        Meteor second = field.meteors().get(1);
+
+        field.update(1.0);
+
+        Meteor movedFirst = field.meteors().stream()
+                .filter(meteor -> meteor.id() == first.id())
+                .findFirst()
+                .orElseThrow();
+        Meteor movedSecond = field.meteors().stream()
+                .filter(meteor -> meteor.id() == second.id())
+                .findFirst()
+                .orElseThrow();
+        assertEquals(first.x() + first.speedX(), movedFirst.x(), 1e-9);
+        assertEquals(first.depth() + first.speedZ(), movedFirst.depth(), 1e-9);
+        assertEquals(second.x() + second.speedX(), movedSecond.x(), 1e-9);
+        assertEquals(second.y() + second.speedY(), movedSecond.y(), 1e-9);
+        assertTrue(movedFirst.x() > first.x());
+        assertTrue(movedSecond.x() < second.x());
+    }
+
+    @Test
+    void gifAnimationUndFlugbewegungBleibenUnabhaengig() {
+        MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(47L), WIDTH, HEIGHT, 100.0, 100.0));
+        AnimatedGif gif = AnimatedGif.load("gif/asteroid1.gif");
+
+        field.spawnAnimatedGifMeteor();
+        Meteor initial = field.meteors().get(0);
+        field.update(1.0);
+        Meteor moved = field.meteors().get(0);
+
+        assertTrue(moved.x() != initial.x());
+        assertEquals(initial.appearance(), moved.appearance());
+        assertTrue(differentPixels(gif.frameAt(0), gif.frameAt(gif.frameDurationMillis(0))) > 0);
+    }
+
+    private int differentPixels(java.awt.image.BufferedImage first, java.awt.image.BufferedImage second) {
+        int differences = 0;
+        for (int y = 0; y < first.getHeight(); y++) {
+            for (int x = 0; x < first.getWidth(); x++) {
+                if (first.getRGB(x, y) != second.getRGB(x, y)) {
+                    differences++;
+                }
+            }
+        }
+        return differences;
     }
 }

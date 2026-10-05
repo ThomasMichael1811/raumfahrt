@@ -219,6 +219,14 @@ class MeteorRendererTest {
         assertEquals(MeteorAppearance.ANIMATED_GIF_2, meteor.appearance());
     }
 
+    @Test
+    void animatedGifGroesseWirktSichtbarAufRendering() {
+        BufferedImage smallImage = renderGif(20.0);
+        BufferedImage largeImage = renderGif(40.0);
+
+        assertTrue(countTexturedPixels(largeImage) > countTexturedPixels(smallImage));
+    }
+
     private int coloredRowsAt(BufferedImage image, int x) {
         int bg = image.getRGB(0, 0);
         int count = 0;
@@ -275,6 +283,31 @@ class MeteorRendererTest {
                 0,
                 0,
                 MeteorAppearance.DEFAULT);
+        new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
+        graphics.dispose();
+        return image;
+    }
+
+    private BufferedImage renderGif(double size) {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        Meteor meteor = new Meteor(
+                1,
+                0,
+                0,
+                500,
+                size,
+                0,
+                0,
+                -100,
+                5,
+                0,
+                0,
+                MeteorBehavior.STRAIGHT,
+                0,
+                0,
+                0,
+                MeteorAppearance.ANIMATED_GIF);
         new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
         graphics.dispose();
         return image;
