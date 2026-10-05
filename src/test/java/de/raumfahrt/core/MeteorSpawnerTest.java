@@ -195,10 +195,11 @@ class MeteorSpawnerTest {
 
         assertTrue(meteor.x() < 0);
         assertTrue(meteor.speedX() > 0);
-        assertEquals(-WIDTH * 0.1, meteor.x(), 1e-9);
-        assertEquals(45.0, meteor.speedX(), 1e-9);
-        assertEquals(0.0, meteor.speedY(), 1e-9);
-        assertTrue(meteor.speedZ() < 0);
+        assertEquals(80.0, meteor.speedX(), 1e-9);
+        assertEquals(28.0, meteor.speedY(), 1e-9);
+        assertTrue(meteor.size() >= 16.0 && meteor.size() <= 20.0);
+        assertEquals(450.0, meteor.depth(), 1e-9);
+        assertEquals(-70.0, meteor.speedZ(), 1e-9);
         assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
         assertEquals(0.0, meteor.rotationSpeed());
     }
@@ -211,9 +212,11 @@ class MeteorSpawnerTest {
 
         assertEquals(MeteorAppearance.ANIMATED_GIF_2, meteor.appearance());
         assertTrue(meteor.x() > 0);
-        assertEquals(WIDTH * 0.1, meteor.x(), 1e-9);
-        assertEquals(-72.0, meteor.speedX(), 1e-9);
-        assertEquals(-18.0, meteor.speedY(), 1e-9);
+        assertEquals(-200.0, meteor.speedX(), 1e-9);
+        assertEquals(-55.0, meteor.speedY(), 1e-9);
+        assertTrue(meteor.size() >= 64.0 && meteor.size() <= 72.0);
+        assertEquals(700.0, meteor.depth(), 1e-9);
+        assertEquals(-180.0, meteor.speedZ(), 1e-9);
     }
 
     @Test
@@ -229,5 +232,13 @@ class MeteorSpawnerTest {
         assertTrue(first.speedX() != second.speedX());
         assertTrue(first.speedY() != second.speedY());
         assertTrue(first.depth() != second.depth());
+        assertTrue(second.size() > first.size() * 3.0);
+
+        MonitorPairProjection projection =
+                new MonitorPairProjection(WIDTH, HEIGHT, 0.0, MeteorSpawner.DEFAULT_FOCAL_PX);
+        assertEquals(WIDTH * 0.3, projection.screenXCentered(first.x(), first.depth()), 1e-9);
+        assertEquals(HEIGHT * 0.25, projection.screenY(first.y(), first.depth()), 1e-9);
+        assertEquals(WIDTH * 0.7, projection.screenXCentered(second.x(), second.depth()), 1e-9);
+        assertEquals(HEIGHT * 0.75, projection.screenY(second.y(), second.depth()), 1e-9);
     }
 }

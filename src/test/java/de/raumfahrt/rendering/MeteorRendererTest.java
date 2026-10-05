@@ -7,16 +7,21 @@ import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorAppearance;
 import de.raumfahrt.core.MeteorBehavior;
 import de.raumfahrt.core.MeteorShape;
+import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.MeteorTrail;
 import de.raumfahrt.core.MonitorPairProjection;
+import de.raumfahrt.core.ScreenCalibration;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 class MeteorRendererTest {
 
     private static final int W = 100;
     private static final int H = 100;
+    private static final int PROFILE_WIDTH = 1280;
+    private static final int PROFILE_HEIGHT = 720;
 
     private static Meteor meteorAt(double worldX, double worldY, double depth, double size) {
         return new Meteor(
@@ -227,6 +232,40 @@ class MeteorRendererTest {
         assertTrue(countTexturedPixels(largeImage) > countTexturedPixels(smallImage));
     }
 
+    @Test
+    void animatedGifProfileErzeugtDeutlichUnterschiedlicheProjektionsgroesse() {
+        double focal = new ScreenCalibration(100.0, 53.0).focalPx(PROFILE_WIDTH);
+        MeteorSpawner spawner = new MeteorSpawner(new Random(43L), PROFILE_WIDTH, PROFILE_HEIGHT, focal);
+        Meteor first = spawner.createAnimatedGifMeteor();
+        Meteor second = spawner.createAnimatedGif2Meteor();
+        MonitorPairProjection projection = new MonitorPairProjection(PROFILE_WIDTH, PROFILE_HEIGHT, 0, focal);
+        double firstDiameter = 2.0 * projection.scale(first.size(), first.depth());
+        double secondDiameter = 2.0 * projection.scale(second.size(), second.depth());
+
+        assertTrue(secondDiameter > firstDiameter * 2.0);
+        assertTrue(projection.screenXCentered(first.x(), first.depth()) < PROFILE_WIDTH / 2.0);
+        assertTrue(projection.screenXCentered(second.x(), second.depth()) > PROFILE_WIDTH / 2.0);
+    }
+
+    @Test
+    void keyProfileWerdenAnUnterschiedlichenSichtbarenPositionenGerendert() {
+        double focal = new ScreenCalibration(100.0, 53.0).focalPx(PROFILE_WIDTH);
+        MeteorSpawner spawner = new MeteorSpawner(new Random(43L), PROFILE_WIDTH, PROFILE_HEIGHT, focal);
+        Meteor first = spawner.createAnimatedGifMeteor();
+        Meteor second = spawner.createAnimatedGif2Meteor();
+        MonitorPairProjection projection = new MonitorPairProjection(PROFILE_WIDTH, PROFILE_HEIGHT, 0, focal);
+        BufferedImage image = new BufferedImage(PROFILE_WIDTH, PROFILE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+
+        MeteorRenderer renderer = new MeteorRenderer();
+        renderer.render(graphics, projection, first, new MeteorShape(first.shapeSeed()));
+        renderer.render(graphics, projection, second, new MeteorShape(second.shapeSeed()));
+        graphics.dispose();
+
+        assertTrue(countOpaquePixels(image, 0, PROFILE_WIDTH / 2, 0, PROFILE_HEIGHT / 2) > 0);
+        assertTrue(countOpaquePixels(image, PROFILE_WIDTH / 2, PROFILE_WIDTH, PROFILE_HEIGHT / 2, PROFILE_HEIGHT) > 0);
+    }
+
     private int coloredRowsAt(BufferedImage image, int x) {
         int bg = image.getRGB(0, 0);
         int count = 0;
@@ -255,6 +294,18 @@ class MeteorRendererTest {
         int count = 0;
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
+                if ((image.getRGB(x, y) >>> 24) > 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private int countOpaquePixels(BufferedImage image, int minX, int maxX, int minY, int maxY) {
+        int count = 0;
+        for (int y = minY; y < maxY; y++) {
+            for (int x = minX; x < maxX; x++) {
                 if ((image.getRGB(x, y) >>> 24) > 0) {
                     count++;
                 }

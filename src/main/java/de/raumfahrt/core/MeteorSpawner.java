@@ -26,9 +26,9 @@ public final class MeteorSpawner {
     private static final double EFFECT_DEPTH = 600.0;
     private static final double SPAWN_MARGIN_PX = 60.0;
     private static final AnimatedGifProfile ASTEROID_1_PROFILE =
-            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF, -0.1, 0.0, 500.0, 20.0, 10.0, 45.0, 0.0, -100.0);
+            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF, -0.2, -0.25, 450.0, 16.0, 4.0, 80.0, 28.0, -70.0);
     private static final AnimatedGifProfile ASTEROID_2_PROFILE =
-            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF_2, 0.1, 0.12, 650.0, 42.0, 10.0, -72.0, -18.0, -140.0);
+            new AnimatedGifProfile(MeteorAppearance.ANIMATED_GIF_2, 0.2, 0.25, 700.0, 64.0, 8.0, -200.0, -55.0, -180.0);
 
     private final Random random;
     private final int width;
@@ -146,8 +146,8 @@ public final class MeteorSpawner {
     private Meteor createAnimatedGifMeteor(AnimatedGifProfile profile) {
         return new Meteor(
                 nextId++,
-                width * profile.startXFactor(),
-                height * profile.startYFactor(),
+                width * profile.startXFactor() * profile.depth() / focalPx,
+                height * profile.startYFactor() * profile.depth() / focalPx,
                 profile.depth(),
                 profile.minSize() + random.nextDouble() * profile.sizeRange(),
                 profile.speedX(),

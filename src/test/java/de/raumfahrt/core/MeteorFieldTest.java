@@ -235,6 +235,13 @@ class MeteorFieldTest {
         assertEquals(second.y() + second.speedY(), movedSecond.y(), 1e-9);
         assertTrue(movedFirst.x() > first.x());
         assertTrue(movedSecond.x() < second.x());
+
+        MonitorPairProjection projection =
+                new MonitorPairProjection(WIDTH, HEIGHT, 0.0, MeteorSpawner.DEFAULT_FOCAL_PX);
+        assertTrue(projection.screenXCentered(movedFirst.x(), movedFirst.depth())
+                > projection.screenXCentered(first.x(), first.depth()));
+        assertTrue(projection.screenXCentered(movedSecond.x(), movedSecond.depth())
+                < projection.screenXCentered(second.x(), second.depth()));
     }
 
     @Test
