@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Warp Prototype #639</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --ink: #e9f5ff;
+            --muted: #8aa2b8;
+            --panel: rgba(4, 12, 25, 0.78);
+            --line: rgba(153, 205, 255, 0.22);
+            --accent: #a9e7ff;
+            --violet: #bd9bff;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #02050d;
+            color: var(--ink);
+            font: 14px/1.4 Inter, ui-sans-serif, system-ui, sans-serif;
+        }
+
+        body { position: relative; }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .hud {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            pointer-events: none;
+            text-shadow: 0 2px 14px #000;
+        }
+
+        .eyebrow {
+            margin: 0 0 6px;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(22px, 3vw, 42px);
+            letter-spacing: -0.04em;
+        }
+
+        .state {
+            min-width: 210px;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--panel);
+            backdrop-filter: blur(12px);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .state div {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            color: var(--muted);
+        }
+
+        .state strong { color: var(--ink); }
+
+        .controls {
+            position: fixed;
+            left: 50%;
+            bottom: 78px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            width: min(720px, calc(100% - 32px));
+            transform: translateX(-50%);
+        }
+
+        button {
+            border: 1px solid rgba(177, 224, 255, 0.3);
+            border-radius: 999px;
+            padding: 9px 14px;
+            background: rgba(8, 20, 39, 0.88);
+            color: var(--ink);
+            cursor: pointer;
+            font: inherit;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+        }
+
+        button:hover, button:focus-visible { border-color: var(--accent); color: white; }
+
+        .switcher {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            background: rgba(245, 249, 255, 0.94);
+            color: #08111e;
+            box-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+            transform: translateX(-50%);
+        }
+
+        .switcher button {
+            min-width: 34px;
+            padding: 5px 10px;
+            border: 0;
+            background: #dcecff;
+            color: #08111e;
+            box-shadow: none;
+        }
+
+        .switcher button:hover, .switcher button:focus-visible { background: #b7eaff; }
+
+        .variant-name {
+            min-width: 190px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hint {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            color: rgba(221, 238, 255, 0.65);
+            font-size: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .hud { top: 14px; left: 14px; right: 14px; }
+            .state { min-width: 160px; padding: 9px 10px; font-size: 11px; }
+            .hud h1 { font-size: 24px; }
+            .controls { bottom: 92px; }
+            .hint { display: none; }
+            .variant-name { min-width: 130px; }
+        }
+    </style>
+</head>
+<body>
+<canvas id="warp"></canvas>
+<section class="hud" aria-live="polite">
+    <div>
+        <p class="eyebrow">Throwaway Prototype · Ticket #639</p>
+        <h1 id="variantTitle">Vector Tunnel</h1>
+    </div>
+    <div class="state">
+        <div><span>Phase</span><strong id="phase">Bereit</strong></div>
+        <div><span>Trigger</span><strong id="trigger">-</strong></div>
+        <div><span>Szene</span><strong id="scene">Normal</strong></div>
+        <div><span>View</span><strong id="view">1 Monitor</strong></div>
+    </div>
+</section>
+<div class="controls">
+    <button id="warpButton">Warp starten</button>
+    <button id="sceneButton">Szenenwechsel</button>
+    <button id="autoButton">Automatik</button>
+    <button id="pauseButton">Pause</button>
+    <button id="monitorButton">2 Monitore</button>
+</div>
+<p class="hint">Leertaste: Warp · Pfeile: Varianten wechseln</p>
+<nav class="switcher" aria-label="Warp-Varianten">
+    <button id="previousVariant" aria-label="Vorherige Variante">←</button>
+    <span class="variant-name" id="variantLabel">A · Vector Tunnel</span>
+    <button id="nextVariant" aria-label="Naechste Variante">→</button>
+</nav>
+<script>
+    const canvas = document.getElementById('warp');
+    const context = canvas.getContext('2d');
+    const phaseLabel = document.getElementById('phase');
+    const triggerLabel = document.getElementById('trigger');
+    const sceneLabel = document.getElementById('scene');
+    const viewLabel = document.getElementById('view');
+    const title = document.getElementById('variantTitle');
+    const variantLabel = document.getElementById('variantLabel');
+    const variants = ['A', 'B', 'C'];
+    const variantNames = {
+        A: 'Vector Tunnel',
+        B: 'Ion Ribbons',
+        C: 'Deep Jump'
+    };
+    const state = {
+        variant: new URLSearchParams(location.search).get('variant')?.toUpperCase() || 'A',
+        progress: 1,
+        running: false,
+        paused: false,
+        trigger: '-',
+        scene: 1,
+        twoMonitors: false,
+        lastTime: 0,
+        seed: 1
+    };
+
+    if (!variants.includes(state.variant)) state.variant = 'A';
+
+    const stars = Array.from({ length: 260 }, (_, index) => ({
+        angle: Math.random() * Math.PI * 2,
+        distance: 0.08 + Math.random() * 1.3,
+        size: 0.4 + Math.random() * 2.6,
+        speed: 0.25 + Math.random() * 1.25,
+        offset: index * 0.17
+    }));
+
+    function resize() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(window.innerWidth * ratio);
+        canvas.height = Math.floor(window.innerHeight * ratio);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    function updateUrl() {
+        const url = new URL(location.href);
+        url.searchParams.set('variant', state.variant);
+        try { history.replaceState(null, '', url); } catch (_) { location.search = `?variant=${state.variant}`; }
+    }
+
+    function setVariant(next) {
+        state.variant = variants[(variants.indexOf(next) + variants.length) % variants.length];
+        title.textContent = variantNames[state.variant];
+        variantLabel.textContent = `${state.variant} · ${variantNames[state.variant]}`;
+        updateUrl();
+    }
+
+    function cycle(direction) {
+        setVariant(variants[(variants.indexOf(state.variant) + direction + variants.length) % variants.length]);
+    }
+
+    function startWarp(trigger) {
+        if (state.running) return;
+        state.running = true;
+        state.progress = 0;
+        state.trigger = trigger;
+        state.seed = Math.random() * 100;
+    }
+
+    function phaseAmount() {
+        if (!state.running) return 0;
+        if (state.progress < 0.5) return state.progress * 2;
+        return (1 - state.progress) * 2;
+    }
+
+    function ease(value) {
+        return value < 0.5 ? 2 * value * value : 1 - Math.pow(-2 * value + 2, 2) / 2;
+    }
+
+    function drawBackground(width, height, alpha) {
+        const gradient = context.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(width, height) * 0.72);
+        gradient.addColorStop(0, `rgba(18, 56, 102, ${0.28 + alpha * 0.2})`);
+        gradient.addColorStop(0.42, `rgba(5, 18, 39, ${0.75 + alpha * 0.15})`);
+        gradient.addColorStop(1, 'rgba(1, 4, 11, 1)');
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, width, height);
+    }
+
+    function viewportList() {
+        const gap = state.twoMonitors ? 18 : 0;
+        if (!state.twoMonitors) return [{ x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }];
+        const width = (window.innerWidth - gap) / 2;
+        return [{ x: 0, y: 0, width, height: window.innerHeight }, { x: width + gap, y: 0, width, height: window.innerHeight }];
+    }
+
+    function drawStarField(view, time, power) {
+        const cx = view.x + view.width / 2;
+        const cy = view.y + view.height / 2;
+        for (const star of stars) {
+            const travel = (star.distance + time * 0.00012 * star.speed * (1 + power * 14)) % 1.45;
+            const radius = travel * Math.min(view.width, view.height) * 0.72;
+            const x = cx + Math.cos(star.angle) * radius;
+            const y = cy + Math.sin(star.angle) * radius;
+            const alpha = Math.max(0, 1 - travel / 1.45) * (0.35 + star.size / 4);
+            context.fillStyle = `rgba(185, 224, 255, ${alpha})`;
+            context.fillRect(x, y, star.size, star.size);
+        }
+    }
+
+    function drawCore(view, power) {
+        const cx = view.x + view.width / 2;
+        const cy = view.y + view.height / 2;
+        const glow = context.createRadialGradient(cx, cy, 0, cx, cy, 190 + power * 100);
+        glow.addColorStop(0, `rgba(236, 252, 255, ${0.75 * power})`);
+        glow.addColorStop(0.08, `rgba(146, 220, 255, ${0.42 * power})`);
+        glow.addColorStop(0.38, `rgba(126, 109, 255, ${0.13 * power})`);
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        context.fillStyle = glow;
+        context.fillRect(view.x, view.y, view.width, view.height);
+    }
+
+    function drawVectorTunnel(view, time, power) {
+        const cx = view.x + view.width / 2;
+        const cy = view.y + view.height / 2;
+        const maxRadius = Math.hypot(view.width, view.height) * 0.72;
+        const count = 78;
+        context.lineCap = 'round';
+        for (let index = 0; index < count; index++) {
+            const angle = index * 2.399 + state.seed;
+            const radius = 70 + ((index * 37 + time * (0.03 + power * 0.16)) % maxRadius);
+            const inner = Math.max(18, radius - (16 + power * 145));
+            const x1 = cx + Math.cos(angle) * inner;
+            const y1 = cy + Math.sin(angle) * inner;
+            const x2 = cx + Math.cos(angle) * radius;
+            const y2 = cy + Math.sin(angle) * radius;
+            const violet = index % 7 === 0;
+            context.strokeStyle = violet ? `rgba(190, 155, 255, ${0.35 + power * 0.55})` : `rgba(168, 226, 255, ${0.24 + power * 0.66})`;
+            context.lineWidth = 0.6 + (index % 4) * 0.5 + power * (index % 5 === 0 ? 2.5 : 0.8);
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+        }
+        context.strokeStyle = `rgba(224, 249, 255, ${power * 0.55})`;
+        context.lineWidth = 1 + power * 4;
+        context.beginPath();
+        context.arc(cx, cy, 44 + power * 38, 0, Math.PI * 2);
+        context.stroke();
+        drawCore(view, power);
+    }
+
+    function drawIonRibbons(view, time, power) {
+        const cx = view.x + view.width / 2;
+        const cy = view.y + view.height / 2;
+        const reach = Math.max(view.width, view.height) * 0.8;
+        context.lineCap = 'round';
+        for (let ribbon = 0; ribbon < 15; ribbon++) {
+            const phase = ribbon * 0.63 + time * 0.0018;
+            const spread = 0.2 + ribbon * 0.032;
+            context.beginPath();
+            for (let step = 0; step <= 24; step++) {
+                const t = step / 24;
+                const distance = 30 + t * reach * (0.65 + power * 0.55);
+                const wave = Math.sin(t * 9 + phase) * (12 + t * 38) * (0.4 + power);
+                const x = cx + Math.cos(phase + spread) * distance + Math.cos(phase + Math.PI / 2) * wave;
+                const y = cy + Math.sin(phase + spread) * distance + Math.sin(phase + Math.PI / 2) * wave;
+                if (step === 0) context.moveTo(x, y); else context.lineTo(x, y);
+            }
+            context.strokeStyle = ribbon % 4 === 0 ? `rgba(211, 161, 255, ${0.18 + power * 0.58})` : `rgba(122, 220, 255, ${0.13 + power * 0.52})`;
+            context.lineWidth = 1 + (ribbon % 3) * 0.7 + power * 3;
+            context.stroke();
+        }
+        drawStarField(view, time, power * 0.7);
+        drawCore(view, power);
+    }
+
+    function drawDeepJump(view, time, power) {
+        const cx = view.x + view.width / 2;
+        const cy = view.y + view.height / 2;
+        const maxRadius = Math.hypot(view.width, view.height) * 0.7;
+        context.globalCompositeOperation = 'lighter';
+        for (let index = 0; index < 170; index++) {
+            const angle = index * 2.41 + state.seed * 0.1;
+            const progress = ((index * 0.071 + time * 0.00022 * (1 + power * 15)) % 1.2);
+            const radius = Math.max(16, progress * maxRadius);
+            const tail = Math.max(3, power * (50 + (index % 6) * 28) * progress);
+            const x1 = cx + Math.cos(angle) * Math.max(8, radius - tail);
+            const y1 = cy + Math.sin(angle) * Math.max(8, radius - tail);
+            const x2 = cx + Math.cos(angle) * radius;
+            const y2 = cy + Math.sin(angle) * radius;
+            context.strokeStyle = index % 13 === 0 ? `rgba(209, 167, 255, ${0.22 + power * 0.6})` : `rgba(211, 244, 255, ${0.12 + power * 0.55})`;
+            context.lineWidth = index % 11 === 0 ? 2.4 + power * 3 : 0.5 + power * 1.7;
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+        }
+        context.globalCompositeOperation = 'source-over';
+        drawCore(view, power * 0.8);
+    }
+
+    function draw(time) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const power = ease(phaseAmount());
+        drawBackground(width, height, power);
+        for (const view of viewportList()) {
+            context.save();
+            context.beginPath();
+            context.rect(view.x, view.y, view.width, view.height);
+            context.clip();
+            if (state.variant === 'A') drawVectorTunnel(view, time, power);
+            if (state.variant === 'B') drawIonRibbons(view, time, power);
+            if (state.variant === 'C') drawDeepJump(view, time, power);
+            context.restore();
+        }
+        if (state.twoMonitors) {
+            context.fillStyle = '#01030a';
+            context.fillRect((width - 18) / 2, 0, 18, height);
+        }
+        updateLabels();
+    }
+
+    function updateLabels() {
+        phaseLabel.textContent = state.paused ? 'Pausiert' : state.running ? `${Math.round(state.progress * 100)} %` : 'Bereit';
+        triggerLabel.textContent = state.trigger;
+        sceneLabel.textContent = `S${state.scene}`;
+        viewLabel.textContent = state.twoMonitors ? '2 Monitore' : '1 Monitor';
+    }
+
+    function frame(time) {
+        if (!state.lastTime) state.lastTime = time;
+        const delta = Math.min(40, time - state.lastTime);
+        state.lastTime = time;
+        if (state.running && !state.paused) {
+            state.progress += delta / 2000;
+            if (state.progress >= 1) {
+                state.progress = 1;
+                state.running = false;
+                state.trigger = '-';
+            }
+        }
+        draw(time);
+        requestAnimationFrame(frame);
+    }
+
+    document.getElementById('warpButton').onclick = () => startWarp('manuell');
+    document.getElementById('sceneButton').onclick = () => {
+        if (state.running) return;
+        state.scene = state.scene % 4 + 1;
+        startWarp('Tastatur 4–9');
+    };
+    document.getElementById('autoButton').onclick = () => {
+        if (state.running) return;
+        state.scene = state.scene % 4 + 1;
+        startWarp('automatisch');
+    };
+    document.getElementById('pauseButton').onclick = event => {
+        state.paused = !state.paused;
+        event.currentTarget.textContent = state.paused ? 'Fortsetzen' : 'Pause';
+    };
+    document.getElementById('monitorButton').onclick = event => {
+        state.twoMonitors = !state.twoMonitors;
+        event.currentTarget.textContent = state.twoMonitors ? '1 Monitor' : '2 Monitore';
+    };
+    document.getElementById('previousVariant').onclick = () => cycle(-1);
+    document.getElementById('nextVariant').onclick = () => cycle(1);
+    document.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft') cycle(-1);
+        if (event.key === 'ArrowRight') cycle(1);
+        if (event.code === 'Space') { event.preventDefault(); startWarp('manuell'); }
+    });
+    window.addEventListener('resize', resize);
+    setVariant(state.variant);
+    resize();
+    requestAnimationFrame(frame);
+</script>
+</body>
+</html>
