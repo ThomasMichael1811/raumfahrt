@@ -4,6 +4,7 @@ import de.raumfahrt.core.Explosion;
 import de.raumfahrt.core.Meteor;
 import de.raumfahrt.core.MeteorShape;
 import de.raumfahrt.core.MonitorPairProjection;
+import de.raumfahrt.core.MonitorSide;
 import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.Sun;
@@ -35,6 +36,7 @@ public final class SpacePanel extends JPanel {
     private final transient WarpEffectRenderer warpRenderer = new WarpEffectRenderer();
     private final transient SimulationWorld world;
     private final transient MonitorView view;
+    private final transient MonitorSide side;
     private transient double focalPx = DEFAULT_FOCAL_PX;
     private transient BufferedImage offscreen;
 
@@ -51,7 +53,14 @@ public final class SpacePanel extends JPanel {
             MeteorRenderer meteorRenderer,
             CabinFrameRenderer frameRenderer,
             SimulationWorld world) {
-        this(renderer, starFieldRenderer, meteorRenderer, frameRenderer, world, MonitorView.CENTERED);
+        this(
+                renderer,
+                starFieldRenderer,
+                meteorRenderer,
+                frameRenderer,
+                world,
+                MonitorView.CENTERED,
+                MonitorSide.RIGHT);
     }
 
     public SpacePanel(
@@ -60,13 +69,25 @@ public final class SpacePanel extends JPanel {
             MeteorRenderer meteorRenderer,
             CabinFrameRenderer frameRenderer,
             SimulationWorld world,
-            MonitorView view) {
+            MonitorSide side) {
+        this(renderer, starFieldRenderer, meteorRenderer, frameRenderer, world, MonitorView.CENTERED, side);
+    }
+
+    public SpacePanel(
+            SpaceRenderer renderer,
+            StarFieldRenderer starFieldRenderer,
+            MeteorRenderer meteorRenderer,
+            CabinFrameRenderer frameRenderer,
+            SimulationWorld world,
+            MonitorView view,
+            MonitorSide side) {
         this.renderer = renderer;
         this.starFieldRenderer = starFieldRenderer;
         this.meteorRenderer = meteorRenderer;
         this.frameRenderer = frameRenderer;
         this.world = world;
         this.view = view;
+        this.side = side;
     }
 
     public SimulationWorld world() {
@@ -87,12 +108,7 @@ public final class SpacePanel extends JPanel {
         renderer.render(target, panelWidth, panelHeight);
         if (world.warpState().active()) {
             warpRenderer.render(
-                    target,
-                    panelWidth / 2.0,
-                    panelHeight / 2.0,
-                    panelWidth,
-                    panelHeight,
-                    world.warpState().progress());
+                    target, side, panelWidth, panelHeight, world.warpState().progress());
         } else {
             renderScene(target, new MonitorPairProjection(panelWidth, panelHeight, GAP_PX, focalPx), view);
         }

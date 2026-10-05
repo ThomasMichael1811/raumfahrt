@@ -5,6 +5,7 @@ import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.MonitorConfig;
+import de.raumfahrt.core.MonitorSide;
 import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
@@ -38,11 +39,10 @@ public final class SpaceWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Rectangle screen = screenBounds();
         int width = screen.width, height = screen.height;
-        double focalPx = MonitorConfig.load().calibration().focalPx(width);
+        MonitorConfig config = MonitorConfig.load();
+        double focalPx = config.calibration().focalPx(width);
         WorldObjects wo = createWorld(width, height, focalPx);
-        spacePanel = new SpacePanel(
-                new SpaceRenderer(), new StarFieldRenderer(), new MeteorRenderer(), new CabinFrameRenderer(), wo.world);
-        spacePanel.setFocalPx(focalPx);
+        spacePanel = createPanel(wo, config.side(), focalPx);
         setContentPane(spacePanel);
         setUndecorated(true);
         setSize(width, height);
@@ -60,6 +60,18 @@ public final class SpaceWindow extends JFrame {
             spacePanel.repaint();
         });
         gameLoop.start();
+    }
+
+    private SpacePanel createPanel(WorldObjects worldObjects, MonitorSide side, double focalPx) {
+        SpacePanel panel = new SpacePanel(
+                new SpaceRenderer(),
+                new StarFieldRenderer(),
+                new MeteorRenderer(),
+                new CabinFrameRenderer(),
+                worldObjects.world,
+                side);
+        panel.setFocalPx(focalPx);
+        return panel;
     }
 
     private WorldObjects createWorld(int width, int height, double focalPx) {

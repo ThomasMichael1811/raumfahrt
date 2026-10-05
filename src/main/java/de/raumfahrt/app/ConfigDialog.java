@@ -1,11 +1,13 @@
 package de.raumfahrt.app;
 
 import de.raumfahrt.core.MonitorConfig;
+import de.raumfahrt.core.MonitorSide;
 import de.raumfahrt.core.ScreenCalibration;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,6 +22,7 @@ public final class ConfigDialog extends JDialog {
     private transient JTextField gapField;
     private transient JTextField distanceField;
     private transient JTextField widthField;
+    private transient JComboBox<MonitorSide> sideBox;
     private final transient JLabel errorLabel;
 
     public ConfigDialog(JFrame owner, MonitorConfig config) {
@@ -48,6 +51,10 @@ public final class ConfigDialog extends JDialog {
         distanceField = textField(
                 form, "Betrachtungsabstand (cm):", config.calibration().viewingDistanceCm());
         widthField = textField(form, "Monitorbreite (cm):", config.calibration().screenWidthCm());
+        form.add(new JLabel("Monitorseite:"));
+        sideBox = new JComboBox<>(MonitorSide.values());
+        sideBox.setSelectedItem(config.side());
+        form.add(sideBox);
         return form;
     }
 
@@ -66,6 +73,7 @@ public final class ConfigDialog extends JDialog {
             double width = Double.parseDouble(widthField.getText().trim());
             config.setGapCm(gap);
             config.setCalibration(new ScreenCalibration(distance, width));
+            config.setSide((MonitorSide) sideBox.getSelectedItem());
             config.save();
             dispose();
         } catch (NumberFormatException e) {

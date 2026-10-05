@@ -123,4 +123,50 @@ class MonitorConfigTest {
         assertEquals(100.0, config.calibration().viewingDistanceCm());
         assertEquals(53.0, config.calibration().screenWidthCm());
     }
+
+    @Test
+    void defaultSeiteIstRechts() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        assertEquals(MonitorSide.RIGHT, config.side());
+    }
+
+    @Test
+    void setSideSpeichertWert() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        config.setSide(MonitorSide.LEFT);
+
+        assertEquals(MonitorSide.LEFT, config.side());
+    }
+
+    @Test
+    void setSideLehntNullAb() {
+        MonitorConfig config = new MonitorConfig(tempDir.resolve("config.properties"));
+
+        assertThrows(IllegalArgumentException.class, () -> config.setSide(null));
+    }
+
+    @Test
+    void seitenRundreise() throws IOException {
+        Path file = tempDir.resolve("config.properties");
+        MonitorConfig config = new MonitorConfig(file);
+        config.setSide(MonitorSide.LEFT);
+        config.save();
+
+        MonitorConfig loaded = new MonitorConfig(file);
+        loaded.readFromFile();
+
+        assertEquals(MonitorSide.LEFT, loaded.side());
+    }
+
+    @Test
+    void kaputteSeiteFaelltAufDefault() throws IOException {
+        Path file = tempDir.resolve("config.properties");
+        Files.writeString(file, "monitor.side=BANANE");
+        MonitorConfig config = new MonitorConfig(file);
+        config.readFromFile();
+
+        assertEquals(MonitorSide.RIGHT, config.side());
+    }
 }

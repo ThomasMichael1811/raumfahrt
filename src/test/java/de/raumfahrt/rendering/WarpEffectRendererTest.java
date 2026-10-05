@@ -3,6 +3,7 @@ package de.raumfahrt.rendering;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.raumfahrt.core.MonitorSide;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -11,7 +12,8 @@ import org.junit.jupiter.api.Test;
 
 class WarpEffectRendererTest {
 
-    private static final int SIZE = 240;
+    private static final int WIDTH = 320;
+    private static final int HEIGHT = 240;
 
     @Test
     void intensityBlendetEinUndAus() {
@@ -23,40 +25,46 @@ class WarpEffectRendererTest {
     }
 
     @Test
-    void aktiverWarpZeichnetLichtstreifen() {
-        BufferedImage image = render(0.5);
+    void rechteSeitenscheibeHatFluchtpunktLinksAusserhalb() {
+        WarpEffectRenderer.WarpViewport viewport = WarpEffectRenderer.viewportFor(MonitorSide.RIGHT, WIDTH, HEIGHT);
 
-        assertTrue(nonBackgroundPixels(image) > 0, "Warp-Effekt ist unsichtbar");
+        assertTrue(viewport.vanishingX() < 0.0, "Fluchtpunkt muss links vor dem Monitor liegen");
+        assertEquals(0.0, viewport.coreX(), 1e-9);
+    }
+
+    @Test
+    void linkeSeitenscheibeHatFluchtpunktRechtsAusserhalb() {
+        WarpEffectRenderer.WarpViewport viewport = WarpEffectRenderer.viewportFor(MonitorSide.LEFT, WIDTH, HEIGHT);
+
+        assertTrue(viewport.vanishingX() > WIDTH, "Fluchtpunkt muss rechts vor dem Monitor liegen");
+        assertEquals((double) WIDTH, viewport.coreX(), 1e-9);
+    }
+
+    @Test
+    void aktiverWarpZeichnetLichtstreifen() {
+        assertTrue(nonBackgroundPixels(render(MonitorSide.RIGHT, 0.5)) > 0, "Warp-Effekt ist unsichtbar");
+        assertTrue(nonBackgroundPixels(render(MonitorSide.LEFT, 0.5)) > 0, "Warp-Effekt ist unsichtbar");
     }
 
     @Test
     void inaktiverWarpLaesstBildUnveraendert() {
-        BufferedImage image = render(0.0);
-
-        assertEquals(0, nonBackgroundPixels(image));
+        assertEquals(0, nonBackgroundPixels(render(MonitorSide.RIGHT, 0.0)));
     }
 
-    @Test
-    void lichtkernZeichnetImZentrum() {
-        BufferedImage image = render(0.5);
-
-        assertTrue(luminance(image.getRGB(SIZE / 2, SIZE / 2)) > 0);
-    }
-
-    private BufferedImage render(double progress) {
-        BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_RGB);
+    private BufferedImage render(MonitorSide side, double progress) {
+        BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setColor(Color.BLACK);
-        graphics.fillRect(0, 0, SIZE, SIZE);
-        new WarpEffectRenderer(new Random(7L)).render(graphics, SIZE / 2.0, SIZE / 2.0, SIZE, SIZE, progress);
+        graphics.fillRect(0, 0, WIDTH, HEIGHT);
+        new WarpEffectRenderer(new Random(7L)).render(graphics, side, WIDTH, HEIGHT, progress);
         graphics.dispose();
         return image;
     }
 
     private int nonBackgroundPixels(BufferedImage image) {
         int count = 0;
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
                 if (luminance(image.getRGB(x, y)) > 0) {
                     count++;
                 }

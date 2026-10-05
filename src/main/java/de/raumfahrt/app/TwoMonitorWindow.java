@@ -4,6 +4,7 @@ import de.raumfahrt.core.GameLoop;
 import de.raumfahrt.core.MeteorField;
 import de.raumfahrt.core.MeteorSpawner;
 import de.raumfahrt.core.MonitorConfig;
+import de.raumfahrt.core.MonitorSide;
 import de.raumfahrt.core.SceneType;
 import de.raumfahrt.core.SimulationWorld;
 import de.raumfahrt.core.StarField;
@@ -46,12 +47,14 @@ public final class TwoMonitorWindow {
         world = simulation.world();
         controller = simulation.controller();
         warpScheduler = simulation.warpScheduler();
-        windowOne = createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, simulation.focalPx());
+        windowOne =
+                createWindow(devices[0], "Raumfahrt links", MonitorView.LEFT, simulation.focalPx(), simulation.side());
         windowTwo = createWindow(
                 devices.length > 1 ? devices[1] : devices[0],
                 "Raumfahrt rechts",
                 MonitorView.RIGHT,
-                simulation.focalPx());
+                simulation.focalPx(),
+                simulation.side());
         bindInput(windowOne);
         bindInput(windowTwo);
         setVisible();
@@ -65,7 +68,8 @@ public final class TwoMonitorWindow {
         int height = primary.height;
         StarGenerator starGenerator = new StarGenerator();
         StarField starField = new StarField(width, starGenerator.generate(width, height, new Random()));
-        double focalPx = MonitorConfig.load().calibration().focalPx(width);
+        MonitorConfig config = MonitorConfig.load();
+        double focalPx = config.calibration().focalPx(width);
         MeteorField meteorField = new MeteorField(width, 3, new MeteorSpawner(new Random(), width, height, focalPx));
         Sun sun = new Sun(width, height * 0.3, Math.min(width, height) * 0.3, 5.0);
         SimulationWorld simulationWorld = new SimulationWorld(width, starField, meteorField, sun);
@@ -75,7 +79,7 @@ public final class TwoMonitorWindow {
                 simulationWorld::scene,
                 simulationWorld::isPaused);
         WarpScheduler scheduler = new WarpScheduler(new Random(), transitionController, simulationWorld::nextScene);
-        return new Simulation(simulationWorld, transitionController, scheduler, focalPx);
+        return new Simulation(simulationWorld, transitionController, scheduler, focalPx, config.side());
     }
 
     private void step(double deltaSeconds) {
@@ -90,9 +94,14 @@ public final class TwoMonitorWindow {
     }
 
     private record Simulation(
-            SimulationWorld world, WarpTransitionController controller, WarpScheduler warpScheduler, double focalPx) {}
+            SimulationWorld world,
+            WarpTransitionController controller,
+            WarpScheduler warpScheduler,
+            double focalPx,
+            MonitorSide side) {}
 
-    private JFrame createWindow(GraphicsDevice device, String title, MonitorView view, double focalPx) {
+    private JFrame createWindow(
+            GraphicsDevice device, String title, MonitorView view, double focalPx, MonitorSide side) {
         Rectangle bounds = device.getDefaultConfiguration().getBounds();
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -102,7 +111,8 @@ public final class TwoMonitorWindow {
                 new MeteorRenderer(),
                 new CabinFrameRenderer(),
                 world,
-                view);
+                view,
+                side);
         panel.setFocalPx(focalPx);
         frame.setContentPane(panel);
         frame.setUndecorated(true);

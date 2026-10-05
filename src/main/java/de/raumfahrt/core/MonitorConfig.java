@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Properties;
 
 public final class MonitorConfig {
@@ -13,11 +14,13 @@ public final class MonitorConfig {
     public static final double MAX_GAP_CM = 50.0;
     public static final double DEFAULT_GAP_CM = 20.0;
     private static final String KEY_GAP_CM = "monitor.gapCm";
+    private static final String KEY_SIDE = "monitor.side";
     private static final String KEY_VIEWING_DISTANCE_CM = "view.distanceCm";
     private static final String KEY_SCREEN_WIDTH_CM = "view.screenWidthCm";
 
     private final Path file;
     private double gapCm;
+    private MonitorSide side = MonitorSide.RIGHT;
     private ScreenCalibration calibration =
             new ScreenCalibration(ScreenCalibration.DEFAULT_DISTANCE_CM, ScreenCalibration.DEFAULT_WIDTH_CM);
 
@@ -37,6 +40,10 @@ public final class MonitorConfig {
         return gapCm;
     }
 
+    public MonitorSide side() {
+        return side;
+    }
+
     public ScreenCalibration calibration() {
         return calibration;
     }
@@ -47,6 +54,13 @@ public final class MonitorConfig {
                     "Monitor-Abstand muss zwischen " + MIN_GAP_CM + " und " + MAX_GAP_CM + " cm liegen: " + gapCm);
         }
         this.gapCm = gapCm;
+    }
+
+    public void setSide(MonitorSide side) {
+        if (side == null) {
+            throw new IllegalArgumentException("Monitorseite darf nicht null sein");
+        }
+        this.side = side;
     }
 
     public void setCalibration(ScreenCalibration calibration) {
@@ -60,6 +74,7 @@ public final class MonitorConfig {
     public void save() {
         Properties properties = new Properties();
         properties.setProperty(KEY_GAP_CM, Double.toString(gapCm));
+        properties.setProperty(KEY_SIDE, side.name());
         properties.setProperty(KEY_VIEWING_DISTANCE_CM, Double.toString(calibration.viewingDistanceCm()));
         properties.setProperty(KEY_SCREEN_WIDTH_CM, Double.toString(calibration.screenWidthCm()));
         try {
@@ -96,7 +111,20 @@ public final class MonitorConfig {
                 gapCm = DEFAULT_GAP_CM;
             }
         }
+        side = readSide(properties);
         calibration = readCalibration(properties);
+    }
+
+    private MonitorSide readSide(Properties properties) {
+        String value = properties.getProperty(KEY_SIDE);
+        if (value == null) {
+            return MonitorSide.RIGHT;
+        }
+        try {
+            return MonitorSide.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return MonitorSide.RIGHT;
+        }
     }
 
     private ScreenCalibration readCalibration(Properties properties) {

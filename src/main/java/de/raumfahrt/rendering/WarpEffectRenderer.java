@@ -1,5 +1,6 @@
 package de.raumfahrt.rendering;
 
+import de.raumfahrt.core.MonitorSide;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -36,17 +37,30 @@ public final class WarpEffectRenderer {
         this.brightLayer = createBrightLayer(random, 16);
     }
 
-    public void render(
-            Graphics2D graphics, double centerX, double centerY, double width, double height, double progress) {
+    public void render(Graphics2D graphics, MonitorSide side, double width, double height, double progress) {
+        render(graphics, viewportFor(side, width, height), progress);
+    }
+
+    void render(Graphics2D graphics, WarpViewport viewport, double progress) {
         double intensity = intensity(progress);
         if (intensity <= 0.0) {
             return;
         }
-        double maxRadius = Math.hypot(Math.max(centerX, width - centerX), Math.max(centerY, height - centerY));
-        drawCore(graphics, centerX, centerY, maxRadius, intensity);
-        drawLayer(graphics, centerX, centerY, maxRadius, intensity, fineLayer);
-        drawLayer(graphics, centerX, centerY, maxRadius, intensity, mediumLayer);
-        drawLayer(graphics, centerX, centerY, maxRadius, intensity, brightLayer);
+        drawCore(graphics, viewport, intensity);
+        drawLayer(graphics, viewport, intensity, fineLayer);
+        drawLayer(graphics, viewport, intensity, mediumLayer);
+        drawLayer(graphics, viewport, intensity, brightLayer);
+    }
+
+    static WarpViewport viewportFor(MonitorSide side, double width, double height) {
+        double centerY = height / 2.0;
+        double vanishingX = side == MonitorSide.LEFT ? width * 1.7 : -width * 0.7;
+        double coreX = side == MonitorSide.LEFT ? width : 0.0;
+        double nearRadius = Math.abs(vanishingX) < Math.abs(vanishingX - width)
+                ? Math.abs(vanishingX)
+                : Math.abs(vanishingX - width);
+        double farRadius = Math.hypot(Math.max(vanishingX, width - vanishingX), centerY);
+        return new WarpViewport(vanishingX, centerY, coreX, centerY, nearRadius, farRadius);
     }
 
     static double intensity(double progress) {
@@ -102,42 +116,54 @@ public final class WarpEffectRenderer {
         return new Layer(streaks, 3.4f, BRIGHT_COLOR);
     }
 
-    private void drawLayer(
-            Graphics2D graphics, double centerX, double centerY, double maxRadius, double intensity, Layer layer) {
+    private void drawLayer(Graphics2D graphics, WarpViewport viewport, double intensity, Layer layer) {
         double acceleration = 0.3 + 0.7 * intensity;
+        double span = viewport.radiusSpan();
         graphics.setStroke(new BasicStroke(layer.strokeWidth(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         for (Streak streak : layer.streaks()) {
             Color color = streak.color() != null ? streak.color() : layer.baseColor();
             graphics.setColor(withAlpha(color, alpha(streak.alpha(), intensity)));
-            double start = streak.startFraction() * maxRadius;
-            double length = streak.lengthFraction() * maxRadius * acceleration;
+            double start = viewport.minRadius() + streak.startFraction() * span;
+            double length = streak.lengthFraction() * span * acceleration;
             double cos = Math.cos(streak.angle());
             double sin = Math.sin(streak.angle());
-            int innerX = (int) Math.round(centerX + cos * start);
-            int innerY = (int) Math.round(centerY + sin * start);
-            int outerX = (int) Math.round(centerX + cos * (start + length));
-            int outerY = (int) Math.round(centerY + sin * (start + length));
+            int innerX = (int) Math.round(viewport.vanishingX() + cos * start);
+            int innerY = (int) Math.round(viewport.vanishingY() + sin * start);
+            int outerX = (int) Math.round(viewport.vanishingX() + cos * (start + length));
+            int outerY = (int) Math.round(viewport.vanishingY() + sin * (start + length));
             graphics.drawLine(innerX, innerY, outerX, outerY);
         }
         graphics.setStroke(new BasicStroke(1.0f));
     }
 
-    private void drawCore(Graphics2D graphics, double centerX, double centerY, double maxRadius, double intensity) {
-        float radius = (float) (maxRadius * 0.4);
+    private void drawCore(Graphics2D graphics, WarpViewport viewport, double intensity) {
+        float radius = (float) (viewport.radiusSpan() * 0.3);
         if (radius <= 0.0f) {
             return;
         }
         int centerAlpha = (int) Math.round(0x55 * intensity);
         RadialGradientPaint core = new RadialGradientPaint(
-                new Point2D.Double(centerX, centerY), radius, new float[] {0.0f, 0.5f, 1.0f}, new Color[] {
+                new Point2D.Double(viewport.coreX(), viewport.coreY()),
+                radius,
+                new float[] {0.0f, 0.5f, 1.0f},
+                new Color[] {
                     withAlpha(CORE_COLOR, centerAlpha), withAlpha(CORE_COLOR, centerAlpha / 3), withAlpha(CORE_COLOR, 0)
                 });
         graphics.setPaint(core);
-        graphics.fill(new Ellipse2D.Double(centerX - radius, centerY - radius, radius * 2.0, radius * 2.0));
+        graphics.fill(
+                new Ellipse2D.Double(viewport.coreX() - radius, viewport.coreY() - radius, radius * 2.0, radius * 2.0));
         graphics.setPaint(null);
     }
 
     private record Streak(double angle, double startFraction, double lengthFraction, Color color, int alpha) {}
 
     private record Layer(List<Streak> streaks, float strokeWidth, Color baseColor) {}
+
+    record WarpViewport(
+            double vanishingX, double vanishingY, double coreX, double coreY, double minRadius, double maxRadius) {
+
+        double radiusSpan() {
+            return maxRadius - minRadius;
+        }
+    }
 }
