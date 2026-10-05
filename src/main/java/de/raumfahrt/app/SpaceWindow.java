@@ -79,8 +79,7 @@ public final class SpaceWindow extends JFrame {
             SimulationWorld world,
             WarpScheduler warpScheduler) {
         effectDispatcher.register(1, meteorField::spawnAimedMeteor);
-        effectDispatcher.register(2, meteorField::spawnAnimatedGifMeteor);
-        effectDispatcher.register(3, () -> meteorField.spawnCrossingMeteor(false));
+        registerGifEffects(effectDispatcher, meteorField);
         effectDispatcher.register(0, warpScheduler::triggerNow);
         effectDispatcher.register(4, () -> world.setScene(SceneType.NORMAL));
         effectDispatcher.register(5, () -> world.setScene(SceneType.SMALL_SUN_LEFT));
@@ -88,6 +87,11 @@ public final class SpaceWindow extends JFrame {
         effectDispatcher.register(7, () -> world.setScene(SceneType.RED_SUN));
         effectDispatcher.register(8, () -> world.setScene(SceneType.TWO_SUNS));
         effectDispatcher.register(9, () -> world.setScene(SceneType.COMET));
+    }
+
+    static void registerGifEffects(EffectDispatcher effectDispatcher, MeteorField meteorField) {
+        effectDispatcher.register(2, meteorField::spawnAnimatedGifMeteor);
+        effectDispatcher.register(3, meteorField::spawnAnimatedGif2Meteor);
     }
 
     @Override
