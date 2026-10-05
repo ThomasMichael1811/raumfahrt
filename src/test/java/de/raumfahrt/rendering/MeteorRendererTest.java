@@ -40,33 +40,30 @@ class MeteorRendererTest {
 
     @Test
     void renderZeichnetFelsbrockenUeberDemHintergrund() {
-        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        new SpaceRenderer().render(graphics, W, H);
         Meteor meteor = meteorAt(0, 0, 500, 15);
         new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
         graphics.dispose();
 
-        assertTrue(containsRockColor(image));
+        assertTrue(countTexturedPixels(image) > 0);
     }
 
     @Test
     void renderZeichnetBrockenAnProjizierterPosition() {
-        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        new SpaceRenderer().render(graphics, W, H);
         Meteor meteor = meteorAt(0, 0, 500, 15);
         new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
         graphics.dispose();
 
-        assertTrue(rockAtPosition(image, W / 2, H / 2));
+        assertTrue(image.getRGB(W / 2, H / 2) >>> 24 > 0);
     }
 
     @Test
     void naherMeteorWirktGroesser() {
-        BufferedImage nearImage = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage nearImage = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D nearGraphics = nearImage.createGraphics();
-        new SpaceRenderer().render(nearGraphics, W, H);
         new MeteorRenderer()
                 .render(
                         nearGraphics,
@@ -75,9 +72,8 @@ class MeteorRendererTest {
                         new MeteorShape(5));
         nearGraphics.dispose();
 
-        BufferedImage farImage = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage farImage = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D farGraphics = farImage.createGraphics();
-        new SpaceRenderer().render(farGraphics, W, H);
         new MeteorRenderer()
                 .render(
                         farGraphics,
@@ -86,7 +82,7 @@ class MeteorRendererTest {
                         new MeteorShape(5));
         farGraphics.dispose();
 
-        assertTrue(countRockPixels(nearImage) > countRockPixels(farImage));
+        assertTrue(countTexturedPixels(nearImage) > countTexturedPixels(farImage));
     }
 
     @Test
@@ -138,9 +134,8 @@ class MeteorRendererTest {
 
     @Test
     void linkerMonitorRendertProjiziertLokal() {
-        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        new SpaceRenderer().render(graphics, W, H);
         Meteor meteor = meteorAt(-62.5, 0, 500, 15);
         new MeteorRenderer()
                 .render(
@@ -151,14 +146,13 @@ class MeteorRendererTest {
                         MonitorView.LEFT);
         graphics.dispose();
 
-        assertTrue(rockAtPosition(image, W / 2, H / 2));
+        assertTrue(image.getRGB(W / 2, H / 2) >>> 24 > 0);
     }
 
     @Test
     void rechterMonitorRendertProjiziertLokal() {
-        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        new SpaceRenderer().render(graphics, W, H);
         Meteor meteor = meteorAt(62.5, 0, 500, 15);
         new MeteorRenderer()
                 .render(
@@ -169,7 +163,15 @@ class MeteorRendererTest {
                         MonitorView.RIGHT);
         graphics.dispose();
 
-        assertTrue(rockAtPosition(image, W / 2, H / 2));
+        assertTrue(image.getRGB(W / 2, H / 2) >>> 24 > 0);
+    }
+
+    @Test
+    void renderDrehtSpriteUmBildmitte() {
+        BufferedImage ungedreht = renderMeteor(0.0);
+        BufferedImage gedreht = renderMeteor(Math.PI / 2.0);
+
+        assertTrue(differentPixels(ungedreht, gedreht) > 0);
     }
 
     @Test
@@ -211,24 +213,53 @@ class MeteorRendererTest {
         return count;
     }
 
-    private boolean rockAtPosition(BufferedImage image, int x, int y) {
-        return image.getRGB(x, y) == MeteorRenderer.METEOR_COLOR.getRGB();
-    }
-
-    private boolean containsRockColor(BufferedImage image) {
-        return countRockPixels(image) > 0;
-    }
-
-    private int countRockPixels(BufferedImage image) {
+    private int countTexturedPixels(BufferedImage image) {
         int count = 0;
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                if (image.getRGB(x, y) == MeteorRenderer.METEOR_COLOR.getRGB()) {
+                if ((image.getRGB(x, y) >>> 24) > 0) {
                     count++;
                 }
             }
         }
         return count;
+    }
+
+    private BufferedImage renderMeteor(double rotation) {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        Meteor meteor = new Meteor(
+                1,
+                0,
+                0,
+                500,
+                15,
+                0,
+                0,
+                -1,
+                5,
+                rotation,
+                0.2,
+                MeteorBehavior.STRAIGHT,
+                0,
+                0,
+                0,
+                MeteorAppearance.DEFAULT);
+        new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
+        graphics.dispose();
+        return image;
+    }
+
+    private int differentPixels(BufferedImage first, BufferedImage second) {
+        int differences = 0;
+        for (int y = 0; y < first.getHeight(); y++) {
+            for (int x = 0; x < first.getWidth(); x++) {
+                if (first.getRGB(x, y) != second.getRGB(x, y)) {
+                    differences++;
+                }
+            }
+        }
+        return differences;
     }
 
     private int countNonBackgroundPixels(BufferedImage image) {

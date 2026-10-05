@@ -21,8 +21,8 @@ class MeteorSpawnerTest {
         assertTrue(Math.abs(meteor.size()) >= 15 && meteor.size() <= 45);
         assertTrue(Math.abs(meteor.speedX()) >= 60 && Math.abs(meteor.speedX()) <= 120);
         assertTrue(meteor.rotation() == 0.0);
-        assertTrue(meteor.rotationSpeed() >= 1.0 * 2.0 * Math.PI / 60.0
-                && meteor.rotationSpeed() <= 10.0 * 2.0 * Math.PI / 60.0);
+        assertTrue(Math.abs(meteor.rotationSpeed()) >= 1.0 * 2.0 * Math.PI / 60.0
+                && Math.abs(meteor.rotationSpeed()) <= 10.0 * 2.0 * Math.PI / 60.0);
         assertTrue(meteor.depth() >= 200 && meteor.depth() <= 900);
         assertTrue(meteor.speedZ() < 0);
     }
@@ -76,6 +76,21 @@ class MeteorSpawnerTest {
         double second = spawner.createMeteor().rotationSpeed();
 
         assertTrue(first != second);
+    }
+
+    @Test
+    void rotationsrichtungVariiertZwischenMeteoren() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(13L), WIDTH, HEIGHT);
+        boolean positive = false;
+        boolean negative = false;
+        for (int i = 0; i < 100; i++) {
+            if (spawner.createMeteor().rotationSpeed() > 0) {
+                positive = true;
+            } else {
+                negative = true;
+            }
+        }
+        assertTrue(positive && negative);
     }
 
     @Test

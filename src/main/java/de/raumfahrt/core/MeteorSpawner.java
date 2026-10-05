@@ -198,7 +198,8 @@ public final class MeteorSpawner {
             min = 7.0;
             range = 3.0;
         }
-        return (min + random.nextDouble() * range) * 2.0 * Math.PI / 60.0;
+        double direction = pick < 0.5 ? 1.0 : -1.0;
+        return direction * (min + random.nextDouble() * range) * 2.0 * Math.PI / 60.0;
     }
 
     private double randomDepth() {

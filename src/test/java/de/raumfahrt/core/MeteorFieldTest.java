@@ -57,7 +57,7 @@ class MeteorFieldTest {
         assertTrue(moved.depth() < initial.depth());
         assertEquals(initial.size(), moved.size());
         assertEquals(initial.shapeSeed(), moved.shapeSeed());
-        assertTrue(moved.rotation() > initial.rotation());
+        assertTrue(moved.rotation() != initial.rotation());
     }
 
     @Test

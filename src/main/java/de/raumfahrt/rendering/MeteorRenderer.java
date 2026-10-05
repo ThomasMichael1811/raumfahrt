@@ -7,7 +7,6 @@ import de.raumfahrt.core.MeteorTrail;
 import de.raumfahrt.core.MonitorPairProjection;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -19,6 +18,7 @@ public final class MeteorRenderer {
 
     static final int PIXEL_SIZE = 6;
     private static final float MAX_TRAIL_SPREAD = 24.0f;
+    static final AsteroidTextureAtlas ASTEROID_TEXTURES = AsteroidTextureAtlas.load("textures/asteroids.png");
     private static final AnimatedGif ASTEROID_GIF = AnimatedGif.load("gif/asteroid1.gif");
     private static final long GIF_START_TIME = System.currentTimeMillis();
 
@@ -32,15 +32,18 @@ public final class MeteorRenderer {
             renderAnimatedGif(graphics, projection, meteor, view);
             return;
         }
+        renderTexturedMeteor(graphics, projection, meteor, view);
+    }
+
+    private void renderTexturedMeteor(
+            Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MonitorView view) {
         AffineTransform original = graphics.getTransform();
+        int diameter = Math.max(1, (int) Math.round(2.0 * projection.scale(meteor.size(), meteor.depth())));
         graphics.translate(
                 view.screenX(projection, meteor.x(), meteor.depth()), projection.screenY(meteor.y(), meteor.depth()));
         graphics.rotate(meteor.rotation());
-        Polygon polygon = shape.polygon(projection.scale(meteor.size(), meteor.depth()));
-        graphics.setColor(METEOR_COLOR);
-        graphics.fillPolygon(polygon);
-        graphics.setColor(METEOR_OUTLINE);
-        graphics.drawPolygon(polygon);
+        BufferedImage sprite = ASTEROID_TEXTURES.spriteForSeed(meteor.shapeSeed());
+        graphics.drawImage(sprite, -diameter / 2, -diameter / 2, diameter, diameter, null);
         graphics.setTransform(original);
     }
 
