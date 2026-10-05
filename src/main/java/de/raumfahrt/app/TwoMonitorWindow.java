@@ -96,6 +96,7 @@ public final class TwoMonitorWindow {
         bindAction(frame, "SPACE", "pause", world::togglePause);
         bindAction(frame, "0", "warp", warpScheduler::triggerNow);
         bindAnimatedGifAction(frame.getRootPane(), world::spawnAnimatedGifMeteor);
+        bindAnimatedGif2Action(frame.getRootPane(), world::spawnAnimatedGif2Meteor);
         bindAction(frame, "4", "sceneNormal", () -> world.setScene(SceneType.NORMAL));
         bindAction(frame, "5", "sceneSmallSun", () -> world.setScene(SceneType.SMALL_SUN_LEFT));
         bindAction(frame, "6", "sceneNoSun", () -> world.setScene(SceneType.NO_SUN));
@@ -112,6 +113,10 @@ public final class TwoMonitorWindow {
 
     static void bindAnimatedGifAction(JComponent root, Runnable action) {
         bindAction(root, "2", "spawnAnimatedGifMeteor", action);
+    }
+
+    static void bindAnimatedGif2Action(JComponent root, Runnable action) {
+        bindAction(root, "3", "spawnAnimatedGif2Meteor", action);
     }
 
     private static void bindAction(JComponent root, String keyStroke, String name, Runnable action) {

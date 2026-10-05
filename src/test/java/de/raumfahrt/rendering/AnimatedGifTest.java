@@ -38,13 +38,20 @@ class AnimatedGifTest {
     }
 
     @Test
+    void zweitesAsteroidGifErhaeltTransparentePixel() {
+        BufferedImage frame = AnimatedGif.load("gif/asteroid2.gif").frameAt(0);
+
+        assertTrue(frame.getColorModel().hasAlpha());
+    }
+
+    @Test
     void zweitesAsteroidGifWirdGeladenUndAnimiert() {
         AnimatedGif gif = AnimatedGif.load("gif/asteroid2.gif");
 
         assertTrue(gif.frameCount() > 1);
         assertTrue(gif.frameDurationMillis(0) > 0);
         assertTrue(differentPixels(gif.frameAt(0), gif.frameAt(gif.frameDurationMillis(0))) > 0);
-        assertSame(gif.frameAt(0), gif.frameAt(gif.frameDurationMillis(0) * gif.frameCount()));
+        assertEquals(0, differentPixels(gif.frameAt(0), gif.frameAt(gif.frameDurationMillis(0) * gif.frameCount())));
     }
 
     private int differentPixels(BufferedImage first, BufferedImage second) {

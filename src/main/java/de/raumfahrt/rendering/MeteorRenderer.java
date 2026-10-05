@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 public final class MeteorRenderer {
 
@@ -19,8 +20,9 @@ public final class MeteorRenderer {
     static final int PIXEL_SIZE = 6;
     private static final float MAX_TRAIL_SPREAD = 24.0f;
     static final AsteroidTextureAtlas ASTEROID_TEXTURES = AsteroidTextureAtlas.load("textures/asteroids.png");
-    private static final AnimatedGif ASTEROID_GIF = AnimatedGif.load("gif/asteroid1.gif");
-    private static final AnimatedGif ASTEROID_GIF_2 = AnimatedGif.load("gif/asteroid2.gif");
+    private static final Map<MeteorAppearance, AnimatedGif> ASTEROID_GIFS = Map.of(
+            MeteorAppearance.ANIMATED_GIF, AnimatedGif.load("gif/asteroid1.gif"),
+            MeteorAppearance.ANIMATED_GIF_2, AnimatedGif.load("gif/asteroid2.gif"));
     private static final long GIF_START_TIME = System.currentTimeMillis();
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
@@ -62,11 +64,11 @@ public final class MeteorRenderer {
     }
 
     private boolean isAnimatedGif(MeteorAppearance appearance) {
-        return appearance == MeteorAppearance.ANIMATED_GIF || appearance == MeteorAppearance.ANIMATED_GIF_2;
+        return ASTEROID_GIFS.containsKey(appearance);
     }
 
     private AnimatedGif animatedGifFor(MeteorAppearance appearance) {
-        return appearance == MeteorAppearance.ANIMATED_GIF_2 ? ASTEROID_GIF_2 : ASTEROID_GIF;
+        return ASTEROID_GIFS.get(appearance);
     }
 
     public void renderTrail(
