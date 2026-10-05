@@ -26,11 +26,19 @@ public final class AnimatedGif {
     }
 
     public static AnimatedGif load(String resourcePath) {
+        return load(resourcePath, false);
+    }
+
+    public static AnimatedGif loadWithTransparentBlack(String resourcePath) {
+        return load(resourcePath, true);
+    }
+
+    private static AnimatedGif load(String resourcePath, boolean transparentBlack) {
         try (InputStream input = AnimatedGif.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (input == null) {
                 throw new IllegalStateException("GIF-Ressource nicht gefunden: " + resourcePath);
             }
-            return decode(input);
+            return decode(input, transparentBlack);
         } catch (IOException exception) {
             throw new IllegalStateException("GIF-Ressource konnte nicht geladen werden: " + resourcePath, exception);
         }
@@ -55,7 +63,7 @@ public final class AnimatedGif {
         return frames.get(index).durationMillis();
     }
 
-    private static AnimatedGif decode(InputStream input) throws IOException {
+    private static AnimatedGif decode(InputStream input, boolean transparentBlack) throws IOException {
         try (ImageInputStream imageInput = ImageIO.createImageInputStream(input)) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInput);
             if (!readers.hasNext()) {
@@ -64,14 +72,14 @@ public final class AnimatedGif {
             ImageReader reader = readers.next();
             try {
                 reader.setInput(imageInput, false, false);
-                return decodeFrames(reader);
+                return decodeFrames(reader, transparentBlack);
             } finally {
                 reader.dispose();
             }
         }
     }
 
-    private static AnimatedGif decodeFrames(ImageReader reader) throws IOException {
+    private static AnimatedGif decodeFrames(ImageReader reader, boolean transparentBlack) throws IOException {
         int count = reader.getNumImages(true);
         IIOMetadata streamMetadata = reader.getStreamMetadata();
         int width = metadataDimension(streamMetadata, "logicalScreenWidth", reader.getWidth(0));
@@ -83,7 +91,7 @@ public final class AnimatedGif {
         BufferedImage previousCanvas = null;
         for (int index = 0; index < count; index++) {
             canvas = applyDisposal(canvas, previousBounds, previousDisposal, previousCanvas);
-            DecodedFrame decoded = drawFrame(reader, index, canvas);
+            DecodedFrame decoded = drawFrame(reader, index, canvas, transparentBlack);
             canvas = decoded.canvas();
             frames.add(decoded.frame());
             previousBounds = decoded.bounds();
@@ -103,7 +111,8 @@ public final class AnimatedGif {
         return canvas;
     }
 
-    private static DecodedFrame drawFrame(ImageReader reader, int index, BufferedImage canvas) throws IOException {
+    private static DecodedFrame drawFrame(ImageReader reader, int index, BufferedImage canvas, boolean transparentBlack)
+            throws IOException {
         Node root = reader.getImageMetadata(index).getAsTree("javax_imageio_gif_image_1.0");
         Node descriptor = child(root, "ImageDescriptor");
         int left = attribute(descriptor, "imageLeftPosition", 0);
@@ -117,9 +126,13 @@ public final class AnimatedGif {
         Graphics2D graphics = canvas.createGraphics();
         graphics.drawImage(reader.read(index), left, top, null);
         graphics.dispose();
+        BufferedImage frameImage = copy(canvas);
+        if (transparentBlack) {
+            makeBlackTransparent(frameImage);
+        }
         return new DecodedFrame(
                 canvas,
-                new Frame(copy(canvas), delayMillis),
+                new Frame(frameImage, delayMillis),
                 new Rectangle(left, top, frameWidth, frameHeight),
                 disposal,
                 restoreCanvas);
@@ -172,6 +185,16 @@ public final class AnimatedGif {
         graphics.setComposite(AlphaComposite.Clear);
         graphics.fill(bounds);
         graphics.dispose();
+    }
+
+    private static void makeBlackTransparent(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if ((image.getRGB(x, y) & 0x00FFFFFF) == 0) {
+                    image.setRGB(x, y, 0);
+                }
+            }
+        }
     }
 
     private record Frame(BufferedImage image, int durationMillis) {}

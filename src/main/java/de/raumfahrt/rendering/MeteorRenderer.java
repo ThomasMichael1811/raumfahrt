@@ -22,7 +22,7 @@ public final class MeteorRenderer {
     static final AsteroidTextureAtlas ASTEROID_TEXTURES = AsteroidTextureAtlas.load("textures/asteroids.png");
     private static final Map<MeteorAppearance, AnimatedGif> ASTEROID_GIFS = Map.of(
             MeteorAppearance.ANIMATED_GIF, AnimatedGif.load("gif/asteroid1.gif"),
-            MeteorAppearance.ANIMATED_GIF_2, AnimatedGif.load("gif/asteroid2.gif"));
+            MeteorAppearance.ANIMATED_GIF_2, AnimatedGif.loadWithTransparentBlack("gif/asteroid2.gif"));
     private static final long GIF_START_TIME = System.currentTimeMillis();
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {

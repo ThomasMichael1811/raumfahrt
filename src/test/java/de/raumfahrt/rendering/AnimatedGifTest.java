@@ -39,9 +39,20 @@ class AnimatedGifTest {
 
     @Test
     void zweitesAsteroidGifErhaeltTransparentePixel() {
-        BufferedImage frame = AnimatedGif.load("gif/asteroid2.gif").frameAt(0);
+        BufferedImage frame =
+                AnimatedGif.loadWithTransparentBlack("gif/asteroid2.gif").frameAt(0);
 
-        assertTrue(frame.getColorModel().hasAlpha());
+        boolean hasTransparentPixel = false;
+        for (int y = 0; y < frame.getHeight() && !hasTransparentPixel; y++) {
+            for (int x = 0; x < frame.getWidth(); x++) {
+                if ((frame.getRGB(x, y) >>> 24) == 0) {
+                    hasTransparentPixel = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(hasTransparentPixel);
     }
 
     @Test
