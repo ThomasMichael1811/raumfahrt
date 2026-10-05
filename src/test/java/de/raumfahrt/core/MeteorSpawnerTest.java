@@ -201,4 +201,15 @@ class MeteorSpawnerTest {
         assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
         assertEquals(0.0, meteor.rotationSpeed());
     }
+
+    @Test
+    void zweiterAnimatedGifMeteorIstGezieltAuswaehlbar() {
+        MeteorSpawner spawner = new MeteorSpawner(new Random(37L), WIDTH, HEIGHT);
+
+        Meteor meteor = spawner.createAnimatedGif2Meteor();
+
+        assertEquals(MeteorAppearance.ANIMATED_GIF_2, meteor.appearance());
+        assertEquals(-WIDTH * 0.1, meteor.x(), 1e-9);
+        assertEquals(45.0, meteor.speedX(), 1e-9);
+    }
 }

@@ -164,6 +164,10 @@ public final class SimulationWorld {
         meteorField.spawnAnimatedGifMeteor();
     }
 
+    public void spawnAnimatedGif2Meteor() {
+        meteorField.spawnAnimatedGif2Meteor();
+    }
+
     public List<Asteroid> asteroids() {
         return asteroidField.asteroids();
     }

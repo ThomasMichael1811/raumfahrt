@@ -198,4 +198,13 @@ class MeteorFieldTest {
         assertTrue(moved.depth() < initial.depth());
         assertEquals(MeteorAppearance.ANIMATED_GIF, moved.appearance());
     }
+
+    @Test
+    void zweiterAnimatedGifMeteorKannGezieltAusgeloestWerden() {
+        MeteorField field = new MeteorField(WIDTH, 1, new MeteorSpawner(new Random(41L), WIDTH, HEIGHT, 100.0, 100.0));
+
+        field.spawnAnimatedGif2Meteor();
+
+        assertEquals(MeteorAppearance.ANIMATED_GIF_2, field.meteors().get(0).appearance());
+    }
 }

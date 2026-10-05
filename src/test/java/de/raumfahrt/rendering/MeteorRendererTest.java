@@ -189,6 +189,36 @@ class MeteorRendererTest {
         assertEquals(MeteorAppearance.ANIMATED_GIF, meteor.appearance());
     }
 
+    @Test
+    void zweitesAnimatedGifWirdAnProjizierterPositionGezeichnet() {
+        BufferedImage image = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        new SpaceRenderer().render(graphics, W, H);
+        Meteor meteor = new Meteor(
+                1,
+                0,
+                0,
+                500,
+                30,
+                0,
+                0,
+                -120,
+                5,
+                0,
+                0,
+                MeteorBehavior.STRAIGHT,
+                0,
+                0,
+                0,
+                MeteorAppearance.ANIMATED_GIF_2);
+
+        new MeteorRenderer().render(graphics, new MonitorPairProjection(W, H, 0, 400), meteor, new MeteorShape(5));
+        graphics.dispose();
+
+        assertTrue(countNonBackgroundPixels(image) > 0);
+        assertEquals(MeteorAppearance.ANIMATED_GIF_2, meteor.appearance());
+    }
+
     private int coloredRowsAt(BufferedImage image, int x) {
         int bg = image.getRGB(0, 0);
         int count = 0;

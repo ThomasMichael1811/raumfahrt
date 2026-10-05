@@ -134,6 +134,14 @@ public final class MeteorSpawner {
     }
 
     public Meteor createAnimatedGifMeteor() {
+        return createAnimatedGifMeteor(MeteorAppearance.ANIMATED_GIF);
+    }
+
+    public Meteor createAnimatedGif2Meteor() {
+        return createAnimatedGifMeteor(MeteorAppearance.ANIMATED_GIF_2);
+    }
+
+    private Meteor createAnimatedGifMeteor(MeteorAppearance appearance) {
         return new Meteor(
                 nextId++,
                 width * ANIMATED_GIF_START_X_FACTOR,
@@ -150,7 +158,7 @@ public final class MeteorSpawner {
                 0.0,
                 0.0,
                 0.0,
-                MeteorAppearance.ANIMATED_GIF);
+                appearance);
     }
 
     private double randomScreenOffset(int extentPx) {

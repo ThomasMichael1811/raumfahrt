@@ -20,6 +20,7 @@ public final class MeteorRenderer {
     private static final float MAX_TRAIL_SPREAD = 24.0f;
     static final AsteroidTextureAtlas ASTEROID_TEXTURES = AsteroidTextureAtlas.load("textures/asteroids.png");
     private static final AnimatedGif ASTEROID_GIF = AnimatedGif.load("gif/asteroid1.gif");
+    private static final AnimatedGif ASTEROID_GIF_2 = AnimatedGif.load("gif/asteroid2.gif");
     private static final long GIF_START_TIME = System.currentTimeMillis();
 
     public void render(Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape) {
@@ -28,8 +29,8 @@ public final class MeteorRenderer {
 
     public void render(
             Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MeteorShape shape, MonitorView view) {
-        if (meteor.appearance() == MeteorAppearance.ANIMATED_GIF) {
-            renderAnimatedGif(graphics, projection, meteor, view);
+        if (isAnimatedGif(meteor.appearance())) {
+            renderAnimatedGif(graphics, projection, meteor, view, animatedGifFor(meteor.appearance()));
             return;
         }
         renderTexturedMeteor(graphics, projection, meteor, view);
@@ -48,12 +49,24 @@ public final class MeteorRenderer {
     }
 
     private void renderAnimatedGif(
-            Graphics2D graphics, MonitorPairProjection projection, Meteor meteor, MonitorView view) {
-        BufferedImage frame = ASTEROID_GIF.frameAt(System.currentTimeMillis() - GIF_START_TIME);
+            Graphics2D graphics,
+            MonitorPairProjection projection,
+            Meteor meteor,
+            MonitorView view,
+            AnimatedGif animatedGif) {
+        BufferedImage frame = animatedGif.frameAt(System.currentTimeMillis() - GIF_START_TIME);
         int diameter = Math.max(1, (int) Math.round(2.0 * projection.scale(meteor.size(), meteor.depth())));
         int x = (int) Math.round(view.screenX(projection, meteor.x(), meteor.depth()) - diameter / 2.0);
         int y = (int) Math.round(projection.screenY(meteor.y(), meteor.depth()) - diameter / 2.0);
         graphics.drawImage(frame, x, y, diameter, diameter, null);
+    }
+
+    private boolean isAnimatedGif(MeteorAppearance appearance) {
+        return appearance == MeteorAppearance.ANIMATED_GIF || appearance == MeteorAppearance.ANIMATED_GIF_2;
+    }
+
+    private AnimatedGif animatedGifFor(MeteorAppearance appearance) {
+        return appearance == MeteorAppearance.ANIMATED_GIF_2 ? ASTEROID_GIF_2 : ASTEROID_GIF;
     }
 
     public void renderTrail(
